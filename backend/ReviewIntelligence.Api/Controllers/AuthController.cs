@@ -6,6 +6,7 @@ using ReviewIntelligence.Api.Services;
 
 namespace ReviewIntelligence.Api.Controllers;
 
+[Route("api/auth")]
 public class AuthController(IAuthService authService) : ApiControllerBase
 {
     /// <summary>Đăng ký tài khoản khách hàng.</summary>

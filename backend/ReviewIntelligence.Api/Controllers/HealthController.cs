@@ -5,6 +5,7 @@ using ReviewIntelligence.Api.Data;
 namespace ReviewIntelligence.Api.Controllers;
 
 [AllowAnonymous]
+[Route("api/health")]
 public class HealthController(AppDbContext db) : ApiControllerBase
 {
     /// <summary>Kiểm tra API và kết nối SQL Server.</summary>

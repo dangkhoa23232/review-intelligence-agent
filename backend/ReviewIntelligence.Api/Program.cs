@@ -1,13 +1,18 @@
 using System.Reflection;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using ReviewIntelligence.Api.Data;
+using ReviewIntelligence.Api.Infrastructure;
 using ReviewIntelligence.Api.Middleware;
+using ReviewIntelligence.Api.Models.Entities;
 using ReviewIntelligence.Api.Options;
 using ReviewIntelligence.Api.Services;
+using ReviewIntelligence.Api.Services.Ai;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,7 +52,8 @@ builder.Services
 builder.Services.AddAuthorization(options =>
 {
     // Giá trị khớp CHECK constraint CK_NguoiDung_VaiTro: 'KhachHang' | 'QuanTri'
-    options.AddPolicy("QuanTri", p => p.RequireRole("QuanTri"));
+    options.AddPolicy(ChinhSach.QuanTri, p => p.RequireRole(VaiTroNguoiDung.QuanTri));
+    options.AddPolicy(ChinhSach.KhachHang, p => p.RequireRole(VaiTroNguoiDung.KhachHang));
 });
 
 // ---------- CORS ----------
@@ -60,9 +66,42 @@ builder.Services.AddCors(options =>
 // ---------- Services ----------
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ITraCuuService, TraCuuService>();
+builder.Services.AddScoped<ISanPhamService, SanPhamService>();
+builder.Services.AddScoped<IDanhGiaService, DanhGiaService>();
+
+// ---------- ai-service (gửi đánh giá vừa duyệt đi phân tích ABSA + vector Qdrant) ----------
+builder.Services.AddOptions<AiServiceOptions>()
+    .Bind(builder.Configuration.GetSection(AiServiceOptions.SectionName))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+builder.Services.AddHttpClient<IAiServiceClient, AiServiceClient>((sp, http) =>
+{
+    var ai = sp.GetRequiredService<IOptions<AiServiceOptions>>().Value;
+    http.BaseAddress = new Uri(ai.BaseUrl.EndsWith('/') ? ai.BaseUrl : ai.BaseUrl + "/");
+    http.Timeout = TimeSpan.FromSeconds(ai.ThoiGianChoGiay);
+});
+builder.Services.AddSingleton<HangDoiPhanTichDanhGia>();
+builder.Services.AddSingleton<IHangDoiPhanTichDanhGia>(sp => sp.GetRequiredService<HangDoiPhanTichDanhGia>());
+builder.Services.AddHostedService<PhanTichDanhGiaWorker>();
 
 // ---------- Controllers + lỗi chuẩn ProblemDetails ----------
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new UtcDateTimeConverter()))
+    .ConfigureApiBehaviorOptions(o =>
+    {
+        // 400 validation: tiêu đề tiếng Việt, giữ nguyên danh sách lỗi theo trường.
+        o.InvalidModelStateResponseFactory = ctx =>
+        {
+            var problem = new ValidationProblemDetails(ctx.ModelState)
+            {
+                Status = StatusCodes.Status400BadRequest,
+                Title = "Dữ liệu đầu vào không hợp lệ.",
+                Instance = ctx.HttpContext.Request.Path
+            };
+            return new BadRequestObjectResult(problem);
+        };
+    });
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 

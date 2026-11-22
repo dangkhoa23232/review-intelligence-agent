@@ -3,7 +3,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api import health
+from app.api import health, phan_tich
 from app.core.config import get_settings
 
 settings = get_settings()
@@ -35,5 +35,6 @@ async def validation_error_handler(_: Request, exc: RequestValidationError) -> J
 
 
 app.include_router(health.router)
+app.include_router(phan_tich.router)
 
-# TODO: app/api/absa.py, app/api/tom_tat.py, app/api/hoi_dap.py (LangGraph agent)
+# TODO: app/api/tom_tat.py, app/api/hoi_dap.py (LangGraph agent)

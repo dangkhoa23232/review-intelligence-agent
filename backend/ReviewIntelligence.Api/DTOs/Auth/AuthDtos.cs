@@ -2,36 +2,43 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ReviewIntelligence.Api.DTOs.Auth;
 
-public record DangNhapRequest(
-    [property: Required(ErrorMessage = "Email là bắt buộc.")]
-    [property: EmailAddress(ErrorMessage = "Email không hợp lệ.")]
-    [property: MaxLength(255)]
-    string Email,
+// Request dùng class + init (không dùng positional record): ASP.NET Core không chấp nhận
+// attribute validation gắn lên property của tham số constructor record.
 
-    [property: Required(ErrorMessage = "Mật khẩu là bắt buộc.")]
-    [property: MinLength(6, ErrorMessage = "Mật khẩu tối thiểu 6 ký tự.")]
-    string MatKhau);
+public class DangNhapRequest
+{
+    [Required(ErrorMessage = "Email là bắt buộc.")]
+    [EmailAddress(ErrorMessage = "Email không hợp lệ.")]
+    [MaxLength(255)]
+    public string Email { get; init; } = string.Empty;
 
-public record DangKyRequest(
-    [property: Required(ErrorMessage = "Email là bắt buộc.")]
-    [property: EmailAddress(ErrorMessage = "Email không hợp lệ.")]
-    [property: MaxLength(255)]
-    string Email,
+    [Required(ErrorMessage = "Mật khẩu là bắt buộc.")]
+    [MinLength(6, ErrorMessage = "Mật khẩu tối thiểu 6 ký tự.")]
+    public string MatKhau { get; init; } = string.Empty;
+}
 
-    [property: Required(ErrorMessage = "Mật khẩu là bắt buộc.")]
-    [property: MinLength(6, ErrorMessage = "Mật khẩu tối thiểu 6 ký tự.")]
-    [property: MaxLength(100)]
-    string MatKhau,
+public class DangKyRequest
+{
+    [Required(ErrorMessage = "Email là bắt buộc.")]
+    [EmailAddress(ErrorMessage = "Email không hợp lệ.")]
+    [MaxLength(255)]
+    public string Email { get; init; } = string.Empty;
 
-    [property: Required(ErrorMessage = "Họ tên là bắt buộc.")]
-    [property: MaxLength(150)]
-    string HoTen,
+    [Required(ErrorMessage = "Mật khẩu là bắt buộc.")]
+    [MinLength(6, ErrorMessage = "Mật khẩu tối thiểu 6 ký tự.")]
+    [MaxLength(100)]
+    public string MatKhau { get; init; } = string.Empty;
 
-    [property: MaxLength(20)]
-    [property: RegularExpression(@"^\+?\d{9,15}$", ErrorMessage = "Số điện thoại không hợp lệ.")]
-    string? SoDienThoai,
+    [Required(ErrorMessage = "Họ tên là bắt buộc.")]
+    [MaxLength(150)]
+    public string HoTen { get; init; } = string.Empty;
 
-    int? MaLoaiDa);
+    [MaxLength(20)]
+    [RegularExpression(@"^\+?\d{9,15}$", ErrorMessage = "Số điện thoại không hợp lệ.")]
+    public string? SoDienThoai { get; init; }
+
+    public int? MaLoaiDa { get; init; }
+}
 
 public record TokenResponse(string AccessToken, DateTime HetHanLuc, NguoiDungDto NguoiDung);
 

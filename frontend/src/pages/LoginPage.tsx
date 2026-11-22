@@ -1,24 +1,35 @@
 import { useState, type FormEvent } from 'react'
-import { useNavigate } from 'react-router'
-import { authApi } from '@/services/api/authApi'
-import { ApiError } from '@/services/api/client'
+import { Navigate, useNavigate, useSearchParams } from 'react-router'
+import { useAuth } from '@/context/useAuth'
+import { thongBaoLoi } from '@/utils/useAsync'
+
+/** Chỉ chấp nhận đường dẫn nội bộ để tránh open redirect. */
+function duongDanTiepTuc(raw: string | null): string {
+  return raw && raw.startsWith('/') && !raw.startsWith('//') ? raw : '/'
+}
 
 export default function LoginPage() {
+  const { nguoiDung, dangNhap } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const tiepTuc = duongDanTiepTuc(searchParams.get('tiepTuc'))
+
   const [email, setEmail] = useState('')
   const [matKhau, setMatKhau] = useState('')
   const [loi, setLoi] = useState<string | null>(null)
   const [dangGui, setDangGui] = useState(false)
+
+  if (nguoiDung) return <Navigate to={tiepTuc} replace />
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
     setLoi(null)
     setDangGui(true)
     try {
-      await authApi.dangNhap({ email, matKhau })
-      navigate('/')
+      const nd = await dangNhap(email, matKhau)
+      navigate(tiepTuc === '/' && nd.vaiTro === 'QuanTri' ? '/admin/danh-gia' : tiepTuc, { replace: true })
     } catch (err) {
-      setLoi(err instanceof ApiError ? err.message : 'Không thể kết nối máy chủ.')
+      setLoi(thongBaoLoi(err))
     } finally {
       setDangGui(false)
     }
@@ -33,6 +44,7 @@ export default function LoginPage() {
           <input
             type="email"
             required
+            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-brand-500 focus:outline-none"
@@ -44,12 +56,17 @@ export default function LoginPage() {
             type="password"
             required
             minLength={6}
+            autoComplete="current-password"
             value={matKhau}
             onChange={(e) => setMatKhau(e.target.value)}
             className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-brand-500 focus:outline-none"
           />
         </label>
-        {loi && <p className="text-sm text-red-600">{loi}</p>}
+        {loi && (
+          <p className="text-sm text-red-600" role="alert">
+            {loi}
+          </p>
+        )}
         <button
           type="submit"
           disabled={dangGui}
