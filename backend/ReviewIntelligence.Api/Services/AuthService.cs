@@ -9,10 +9,23 @@ public interface IAuthService
 {
     Task<KetQua<TokenResponse>> DangNhapAsync(DangNhapRequest req, CancellationToken ct);
     Task<KetQua<NguoiDungDto>> DangKyAsync(DangKyRequest req, CancellationToken ct);
+    Task<KetQua<HoSoDto>> LayHoSoAsync(int maNguoiDung, CancellationToken ct);
 }
 
 public class AuthService(AppDbContext db, ITokenService tokenService) : IAuthService
 {
+    public async Task<KetQua<HoSoDto>> LayHoSoAsync(int maNguoiDung, CancellationToken ct)
+    {
+        var hoSo = await db.NguoiDung.AsNoTracking()
+            .Where(x => x.MaNguoiDung == maNguoiDung && x.DangHoatDong)
+            .Select(x => new HoSoDto(x.MaNguoiDung, x.Email, x.HoTen, x.SoDienThoai, x.DiaChi, x.MaLoaiDa, x.VaiTro))
+            .FirstOrDefaultAsync(ct);
+
+        return hoSo is null
+            ? KetQua<HoSoDto>.Loi(StatusCodes.Status404NotFound, "Không tìm thấy tài khoản.")
+            : KetQua<HoSoDto>.ThanhCong(hoSo);
+    }
+
     public async Task<KetQua<TokenResponse>> DangNhapAsync(DangNhapRequest req, CancellationToken ct)
     {
         var email = req.Email.Trim().ToLowerInvariant();

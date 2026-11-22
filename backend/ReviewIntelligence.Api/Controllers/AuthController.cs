@@ -1,7 +1,7 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ReviewIntelligence.Api.DTOs.Auth;
+using ReviewIntelligence.Api.Infrastructure;
 using ReviewIntelligence.Api.Services;
 
 namespace ReviewIntelligence.Api.Controllers;
@@ -27,14 +27,11 @@ public class AuthController(IAuthService authService) : ApiControllerBase
     public async Task<IActionResult> DangNhap(DangNhapRequest req, CancellationToken ct) =>
         TraVe(await authService.DangNhapAsync(req, ct));
 
-    /// <summary>Thông tin người dùng hiện tại (đọc từ JWT).</summary>
+    /// <summary>Hồ sơ người dùng hiện tại (đọc từ DB: họ tên, SĐT, địa chỉ… để tự điền form thanh toán).</summary>
     [HttpGet("toi")]
     [Authorize]
-    public IActionResult Toi() => Ok(new
-    {
-        MaNguoiDung = User.FindFirstValue(ClaimTypes.NameIdentifier),
-        Email = User.FindFirstValue(ClaimTypes.Email),
-        HoTen = User.FindFirstValue(ClaimTypes.Name),
-        VaiTro = User.FindFirstValue(ClaimTypes.Role)
-    });
+    [ProducesResponseType(typeof(HoSoDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Toi(CancellationToken ct) =>
+        TraVe(await authService.LayHoSoAsync(User.LayMaNguoiDung(), ct));
 }

@@ -69,6 +69,9 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITraCuuService, TraCuuService>();
 builder.Services.AddScoped<ISanPhamService, SanPhamService>();
 builder.Services.AddScoped<IDanhGiaService, DanhGiaService>();
+builder.Services.AddScoped<IGioHangService, GioHangService>();
+builder.Services.AddScoped<IPhieuGiamGiaService, PhieuGiamGiaService>();
+builder.Services.AddScoped<IDonHangService, DonHangService>();
 
 // ---------- ai-service (gửi đánh giá vừa duyệt đi phân tích ABSA + vector Qdrant) ----------
 builder.Services.AddOptions<AiServiceOptions>()

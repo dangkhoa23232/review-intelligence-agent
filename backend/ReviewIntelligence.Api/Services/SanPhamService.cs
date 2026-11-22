@@ -122,7 +122,7 @@ public class SanPhamService(AppDbContext db) : ISanPhamService
         var now = DateTime.UtcNow;
         var bienThe = sp.BienThe.Select(b =>
         {
-            var conHieuLuc = b.GiaKhuyenMai is not null && b.KhuyenMaiTu <= now && b.KhuyenMaiDen >= now;
+            var conHieuLuc = GiaBan.KhuyenMaiHieuLuc(b.GiaKhuyenMai, b.KhuyenMaiTu, b.KhuyenMaiDen, now);
             var giaKm = conHieuLuc ? b.GiaKhuyenMai : null;
             return new BienTheDto(
                 b.MaBienThe, b.MaSKU, b.DungTich, b.GiaBan,

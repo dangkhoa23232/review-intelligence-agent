@@ -43,3 +43,13 @@ public class DangKyRequest
 public record TokenResponse(string AccessToken, DateTime HetHanLuc, NguoiDungDto NguoiDung);
 
 public record NguoiDungDto(int MaNguoiDung, string Email, string HoTen, string VaiTro, int? MaLoaiDa);
+
+/// <summary>Hồ sơ đầy đủ của người dùng hiện tại (GET /api/auth/toi) – dùng tự điền form thanh toán.</summary>
+public record HoSoDto(
+    int MaNguoiDung,
+    string Email,
+    string HoTen,
+    string? SoDienThoai,
+    string? DiaChi,
+    int? MaLoaiDa,
+    string VaiTro);

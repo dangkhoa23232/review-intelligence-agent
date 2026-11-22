@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { StarRating } from '@/components/common/StarRating'
 import { DangTai, HopLoi } from '@/components/common/TrangThaiTai'
+import AddToCart from '@/components/product/AddToCart'
 import ProductImage from '@/components/product/ProductImage'
 import AspectSummary from '@/components/review/AspectSummary'
 import ReviewForm from '@/components/review/ReviewForm'
@@ -233,8 +234,9 @@ export default function ProductDetailPage() {
                 </div>
               </div>
               {bienThe && (
-                <div className="mt-4">
+                <div className="mt-4 space-y-4">
                   <KhoiGia bt={bienThe} />
+                  {sp.trangThai === 'DangBan' && <AddToCart bt={bienThe} tenSanPham={sp.ten} />}
                 </div>
               )}
             </>

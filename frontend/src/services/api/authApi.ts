@@ -1,4 +1,4 @@
-import type { DangNhapRequest, NguoiDung, TokenResponse } from '@/types/auth'
+import type { DangNhapRequest, HoSo, TokenResponse } from '@/types/auth'
 import { api, tokenStorage, userStorage } from './client'
 
 export const authApi = {
@@ -8,7 +8,8 @@ export const authApi = {
     userStorage.set(res.nguoiDung)
     return res
   },
-  toi: () => api.get<Pick<NguoiDung, 'maNguoiDung' | 'email' | 'hoTen' | 'vaiTro'>>('/auth/toi'),
+  /** Hồ sơ đầy đủ (họ tên, SĐT, địa chỉ) đọc từ DB. */
+  toi: () => api.get<HoSo>('/auth/toi'),
   dangXuat: () => {
     tokenStorage.clear()
     userStorage.clear()

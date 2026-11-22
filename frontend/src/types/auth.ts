@@ -9,6 +9,17 @@ export interface NguoiDung {
   maLoaiDa: number | null
 }
 
+/** GET /api/auth/toi – hồ sơ đầy đủ để tự điền form thanh toán. */
+export interface HoSo {
+  maNguoiDung: number
+  email: string
+  hoTen: string
+  soDienThoai: string | null
+  diaChi: string | null
+  maLoaiDa: number | null
+  vaiTro: VaiTro
+}
+
 export interface DangNhapRequest {
   email: string
   matKhau: string

@@ -45,6 +45,19 @@ public static class TrangThaiDonHang
     public const string HoanTat = "HoanTat";
     public const string DaHuy = "DaHuy";
     public static readonly string[] TatCa = [ChoXacNhan, DaXacNhan, DangDongGoi, DangGiao, HoanTat, DaHuy];
+
+    /// <summary>
+    /// Trạng thái được phép chuyển tới – mô phỏng đúng luồng kiểm tra trong dbo.sp_DoiTrangThaiDonHang
+    /// (thủ tục vẫn là nơi kiểm tra cuối cùng).
+    /// </summary>
+    public static IReadOnlyList<string> TiepTheo(string trangThai) => trangThai switch
+    {
+        ChoXacNhan => [DaXacNhan, DaHuy],
+        DaXacNhan => [DangDongGoi, DaHuy],
+        DangDongGoi => [DangGiao, DaHuy],
+        DangGiao => [HoanTat],
+        _ => []
+    };
 }
 
 /// <summary>CK_DanhGia_TrangThai.</summary>
