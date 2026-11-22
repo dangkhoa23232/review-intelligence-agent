@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using ReviewIntelligence.Api.Data;
 
 namespace ReviewIntelligence.Api.Middleware;
 
@@ -8,6 +9,18 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger, IHos
 {
     public async ValueTask<bool> TryHandleAsync(HttpContext context, Exception exception, CancellationToken ct)
     {
+        if (exception is NghiepVuException nv)
+        {
+            context.Response.StatusCode = nv.MaHttp;
+            await context.Response.WriteAsJsonAsync(new ProblemDetails
+            {
+                Status = nv.MaHttp,
+                Title = nv.Message,
+                Instance = context.Request.Path
+            }, ct);
+            return true;
+        }
+
         logger.LogError(exception, "Lỗi chưa xử lý: {Path}", context.Request.Path);
 
         var problem = new ProblemDetails

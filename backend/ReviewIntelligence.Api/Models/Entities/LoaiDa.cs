@@ -7,4 +7,6 @@ public class LoaiDa
     public string Ten { get; set; } = null!;
 
     public ICollection<NguoiDung> NguoiDungs { get; set; } = new List<NguoiDung>();
+    public ICollection<SanPhamLoaiDa> SanPhamLoaiDas { get; set; } = new List<SanPhamLoaiDa>();
+    public ICollection<BoChamSoc> BoChamSocs { get; set; } = new List<BoChamSoc>();
 }

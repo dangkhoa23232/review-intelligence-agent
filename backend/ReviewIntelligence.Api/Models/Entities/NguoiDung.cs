@@ -20,6 +20,12 @@ public class NguoiDung
     public DateTime NgayTao { get; set; }
 
     public LoaiDa? LoaiDa { get; set; }
+    public ICollection<GioHang> GioHangs { get; set; } = new List<GioHang>();
+    public ICollection<YeuThich> YeuThichs { get; set; } = new List<YeuThich>();
+    public ICollection<DonHang> DonHangs { get; set; } = new List<DonHang>();
+    public ICollection<DanhGia> DanhGias { get; set; } = new List<DanhGia>();
+    public ICollection<BaoCaoDanhGia> BaoCaoDanhGias { get; set; } = new List<BaoCaoDanhGia>();
+    public ICollection<ThongBao> ThongBaos { get; set; } = new List<ThongBao>();
 }
 
 public static class VaiTroNguoiDung
