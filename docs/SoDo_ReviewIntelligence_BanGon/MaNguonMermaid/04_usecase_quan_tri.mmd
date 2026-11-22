@@ -1,0 +1,19 @@
+flowchart LR
+    classDef tacnhan fill:#fff,stroke:#333,stroke-width:1.5px
+    classDef uc fill:#eef4ff,stroke:#3b6fd8
+    classDef ai fill:#fff4e5,stroke:#d9822b
+    A["«tác nhân»<br/>Quản trị viên"]:::tacnhan
+    subgraph P3["Quản trị"]
+        M1(["Quản lý danh mục, thương hiệu, sản phẩm, biến thể"]):::uc
+        M2(["Nhập kho theo lô & hạn dùng"]):::uc
+        M3(["Quản lý bộ chăm sóc da"]):::uc
+        M4(["Quản lý phiếu giảm giá & khuyến mãi"]):::uc
+        M5(["Cập nhật trạng thái đơn hàng"]):::uc
+        M6(["Quản lý người dùng"]):::uc
+        M7(["Xem thống kê: doanh thu, bán chạy, tồn thấp"]):::uc
+        M8(["Nhập / xuất CSV dữ liệu mẫu"]):::uc
+        M9(["Xem nhật ký thao tác"]):::uc
+        NT(["Gửi thông báo cho khách"]):::uc
+    end
+    A --- M1 & M2 & M3 & M4 & M5 & M6 & M7 & M8 & M9
+    M5 -.->|«bao gồm»| NT

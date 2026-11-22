@@ -1,0 +1,24 @@
+sequenceDiagram
+    autonumber
+    actor C as Khách hàng
+    participant GD as Giao diện (Next.js)
+    participant API as Máy chủ API (FastAPI)
+    participant CSDL as SQL Server
+    C->>GD: Bấm "Đặt hàng"
+    GD->>API: POST /don-hang (địa chỉ, giao hàng, thanh toán, mã giảm giá)
+    API->>CSDL: Đọc GioHang, BienThe, KhuyenMai, PhieuGiamGia
+    API->>API: Tính tiền hàng, tiền giảm, phí vận chuyển
+    API->>CSDL: Bắt đầu giao tác
+    loop Mỗi dòng giỏ hàng
+        API->>CSDL: Chọn lô còn hàng có hạn dùng gần nhất
+        alt Không đủ hàng
+            API->>CSDL: Hủy giao tác
+            API-->>GD: Báo hết hàng
+        end
+        API->>CSDL: Trừ LoHang.SoLuongConLai, BienThe.SoLuongTon
+    end
+    API->>CSDL: Ghi DonHang (ChoXacNhan), ChiTietDonHang
+    API->>CSDL: Xóa GioHang, ghi ThongBao
+    API->>CSDL: Xác nhận giao tác
+    API-->>GD: Mã đơn, tổng tiền
+    GD-->>C: Trang xác nhận đơn

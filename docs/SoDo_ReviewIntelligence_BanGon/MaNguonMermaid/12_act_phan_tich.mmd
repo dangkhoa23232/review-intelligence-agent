@@ -1,0 +1,13 @@
+flowchart TD
+    S((Bắt đầu)) --> A1[Nhận đánh giá vừa được duyệt]
+    A1 --> A2[Chuẩn hóa văn bản]
+    A2 --> A3[Phân loại cảm xúc tổng]
+    A3 --> A4[Trích xuất khía cạnh và cảm xúc từng khía cạnh]
+    A4 --> D1{JSON đúng định dạng?}
+    D1 -- Không --> D2{Còn lượt thử?}
+    D2 -- Có --> A4
+    D2 -- Không --> A5[Ghi lỗi, bỏ qua] --> X((Kết thúc))
+    D1 -- Có --> A6[Lưu CamXuc và KetQuaKhiaCanh]
+    A6 --> A7[Tạo vector nhúng, lưu vào Qdrant]
+    A7 --> A8[Cập nhật TomTatKhiaCanh của sản phẩm]
+    A8 --> X

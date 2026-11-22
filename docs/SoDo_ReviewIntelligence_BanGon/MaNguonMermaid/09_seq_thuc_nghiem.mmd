@@ -1,0 +1,16 @@
+sequenceDiagram
+    autonumber
+    actor A as Quản trị viên
+    participant EV as Bộ chạy thực nghiệm
+    participant CSDL as SQL Server
+    participant M as Mô hình (PhoBERT / LLM không ví dụ / LLM ít ví dụ)
+    A->>EV: Chọn mô hình, chạy thực nghiệm
+    EV->>CSDL: Đọc MauKiemThu (KiemThu, ViDuMau)
+    loop Mỗi mẫu kiểm thử
+        EV->>M: Dự đoán cảm xúc và khía cạnh
+        M-->>EV: Kết quả
+        EV->>CSDL: Ghi KetQuaThucNghiem (LaDung, DoTreMs)
+    end
+    A->>CSDL: Gán NhomLoi cho dự đoán sai
+    A->>CSDL: Xem vw_ChiSoThucNghiem
+    CSDL-->>A: Độ chính xác, P/R/F1 theo từng mô hình

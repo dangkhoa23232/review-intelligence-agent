@@ -1,0 +1,26 @@
+flowchart LR
+    classDef tacnhan fill:#fff,stroke:#333,stroke-width:1.5px
+    classDef uc fill:#eef4ff,stroke:#3b6fd8
+    classDef ai fill:#fff4e5,stroke:#d9822b
+    G["«tác nhân»<br/>Khách vãng lai"]:::tacnhan
+    C["«tác nhân»<br/>Khách hàng"]:::tacnhan
+    subgraph P1["Tài khoản & mua sắm"]
+        R(["Đăng ký / đăng nhập / quên mật khẩu"]):::uc
+        PR(["Cập nhật hồ sơ & loại da"]):::uc
+        S(["Tìm kiếm, gợi ý tự hoàn thành"]):::uc
+        FI(["Lọc theo loại da, công dụng, thương hiệu, giá"]):::uc
+        D(["Xem chi tiết sản phẩm & sản phẩm liên quan"]):::uc
+        RB(["Xem bộ chăm sóc da"]):::uc
+        W(["Yêu thích, đã xem gần đây, so sánh"]):::uc
+        AC(["Thêm / sửa giỏ hàng"]):::uc
+        ST(["Kiểm tra tồn kho"]):::uc
+        CO(["Đặt hàng"]):::uc
+        VC(["Áp phiếu giảm giá"]):::uc
+        HI(["Xem lịch sử & trạng thái đơn"]):::uc
+        NT(["Nhận thông báo"]):::uc
+    end
+    G --- R & S & FI & D & RB
+    C --- PR & W & AC & CO & HI & NT
+    AC -.->|«bao gồm»| ST
+    CO -.->|«bao gồm»| ST
+    VC -.->|«mở rộng»| CO

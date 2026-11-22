@@ -1,0 +1,91 @@
+erDiagram
+    LoaiDa {
+        int MaLoaiDa PK
+        nvarchar Ten UK
+    }
+    NguoiDung {
+        int MaNguoiDung PK
+        nvarchar Email UK
+        varchar MatKhauBam
+        nvarchar HoTen
+        varchar SoDienThoai
+        nvarchar DiaChi
+        int MaLoaiDa FK
+        varchar VaiTro
+    }
+    DanhMuc {
+        int MaDanhMuc PK
+        int MaDanhMucCha FK
+        nvarchar Ten
+        varchar DuongDan UK
+    }
+    ThuongHieu {
+        int MaThuongHieu PK
+        nvarchar Ten UK
+        nvarchar QuocGia
+    }
+    SanPham {
+        int MaSanPham PK
+        int MaDanhMuc FK
+        int MaThuongHieu FK
+        nvarchar Ten
+        varchar DuongDan UK
+        nvarchar MoTa
+        nvarchar CongDung
+        nvarchar ThanhPhan
+        nvarchar HuongDanSuDung
+    }
+    SanPham_LoaiDa {
+        int MaSanPham PK,FK
+        int MaLoaiDa PK,FK
+    }
+    BienThe {
+        int MaBienThe PK
+        int MaSanPham FK
+        varchar MaSKU UK
+        nvarchar DungTich
+        decimal GiaBan
+        decimal GiaKhuyenMai
+        datetime2 KhuyenMaiTu
+        datetime2 KhuyenMaiDen
+    }
+    LoHang {
+        int MaLo PK
+        int MaBienThe FK
+        varchar SoLo
+        date HanSuDung
+        int SoLuongNhap
+        int SoLuongConLai
+        datetime2 NgayNhap
+    }
+    BoChamSoc {
+        int MaBo PK
+        nvarchar Ten
+        nvarchar MoTa
+        int MaLoaiDa FK
+        decimal PhanTramGiam
+    }
+    ChiTietBoChamSoc {
+        int MaBo PK,FK
+        int MaBienThe PK,FK
+        tinyint ThuTuBuoc
+        nvarchar TenBuoc
+    }
+    YeuThich {
+        int MaNguoiDung PK,FK
+        int MaSanPham PK,FK
+        datetime2 NgayTao
+    }
+    LoaiDa |o--o{ NguoiDung : "loại da"
+    DanhMuc |o--o{ DanhMuc : "danh mục cha"
+    DanhMuc ||--o{ SanPham : "thuộc"
+    ThuongHieu ||--o{ SanPham : "sản xuất"
+    SanPham ||--o{ SanPham_LoaiDa : "phù hợp"
+    LoaiDa ||--o{ SanPham_LoaiDa : "loại da"
+    SanPham ||--o{ BienThe : "có"
+    BienThe ||--o{ LoHang : "nhập theo lô"
+    LoaiDa |o--o{ BoChamSoc : "dành cho"
+    BoChamSoc ||--o{ ChiTietBoChamSoc : "gồm"
+    BienThe ||--o{ ChiTietBoChamSoc : "dùng"
+    NguoiDung ||--o{ YeuThich : "thích"
+    SanPham ||--o{ YeuThich : "được thích"

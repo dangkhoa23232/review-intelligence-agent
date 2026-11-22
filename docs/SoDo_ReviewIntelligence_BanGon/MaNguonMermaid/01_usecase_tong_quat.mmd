@@ -1,0 +1,27 @@
+flowchart LR
+    classDef tacnhan fill:#fff,stroke:#333,stroke-width:1.5px
+    classDef uc fill:#eef4ff,stroke:#3b6fd8
+    classDef ai fill:#fff4e5,stroke:#d9822b
+    G["«tác nhân»<br/>Khách vãng lai"]:::tacnhan
+    C["«tác nhân»<br/>Khách hàng"]:::tacnhan
+    A["«tác nhân»<br/>Quản trị viên"]:::tacnhan
+    AG["«tác nhân hệ thống»<br/>Review Intelligence Agent"]:::tacnhan
+    C -.->|kế thừa| G
+    subgraph HT["Website mỹ phẩm + Review Intelligence Agent"]
+        U1(["Đăng ký / đăng nhập"]):::uc
+        U2(["Xem, tìm kiếm, lọc sản phẩm"]):::uc
+        U3(["Hỏi đáp về đánh giá"]):::ai
+        U4(["Quản lý tài khoản"]):::uc
+        U5(["Giỏ hàng & đặt hàng"]):::uc
+        U6(["Viết / báo cáo đánh giá"]):::uc
+        U7(["Quản trị sản phẩm, kho, đơn hàng, khuyến mãi"]):::uc
+        U8(["Kiểm duyệt đánh giá"]):::uc
+        U9(["Xem thống kê & bảng điều khiển AI"]):::ai
+        U10(["Chạy thực nghiệm mô hình"]):::ai
+        U11(["Phân tích cảm xúc & khía cạnh, tóm tắt"]):::ai
+    end
+    G --- U1 & U2 & U3
+    C --- U4 & U5 & U6
+    A --- U7 & U8 & U9 & U10
+    U3 --- AG
+    U11 --- AG

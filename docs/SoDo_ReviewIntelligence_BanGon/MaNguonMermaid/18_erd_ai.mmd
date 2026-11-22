@@ -1,0 +1,77 @@
+erDiagram
+    KetQuaKhiaCanh {
+        bigint MaKetQua PK
+        int MaDanhGia FK
+        int MaKhiaCanh FK
+        varchar CamXuc
+        nvarchar CumTuDanChung
+        varchar MoHinh
+        datetime2 NgayTao
+    }
+    TomTatKhiaCanh {
+        int MaTomTat PK
+        int MaSanPham FK
+        int MaKhiaCanh FK
+        int SoTichCuc
+        int SoTieuCuc
+        nvarchar UuDiem
+        nvarchar NhuocDiem
+        nvarchar VanDeLapLai
+    }
+    TinNhan {
+        bigint MaTinNhan PK
+        uniqueidentifier MaPhien
+        int MaNguoiDung FK
+        int MaSanPham FK
+        varchar NguoiGui
+        nvarchar NoiDung
+        nvarchar DanChung
+        int DoTreMs
+    }
+    NhatKyTacTu {
+        bigint MaBuoc PK
+        bigint MaTinNhan FK
+        int BuocSo
+        varchar LoaiBuoc
+        varchar TenCongCu
+        nvarchar DauVao
+        nvarchar DauRa
+    }
+    MauKiemThu {
+        int MaMau PK
+        int MaDanhGia FK
+        nvarchar NoiDung
+        varchar CamXucChuan
+        nvarchar KhiaCanhChuan
+        varchar TapDuLieu
+    }
+    KetQuaThucNghiem {
+        bigint MaKetQua PK
+        int MaMau FK
+        varchar MoHinh
+        varchar CamXucDuDoan
+        nvarchar KhiaCanhDuDoan
+        bit LaDung
+        nvarchar NhomLoi
+    }
+    DanhGia {
+        int MaDanhGia PK
+    }
+    KhiaCanh {
+        int MaKhiaCanh PK
+    }
+    NguoiDung {
+        int MaNguoiDung PK
+    }
+    SanPham {
+        int MaSanPham PK
+    }
+    DanhGia ||--o{ KetQuaKhiaCanh : "phân tích"
+    KhiaCanh ||--o{ KetQuaKhiaCanh : "theo khía cạnh"
+    SanPham ||--o{ TomTatKhiaCanh : "tóm tắt"
+    KhiaCanh ||--o{ TomTatKhiaCanh : "theo khía cạnh"
+    NguoiDung |o--o{ TinNhan : "hỏi"
+    SanPham |o--o{ TinNhan : "ngữ cảnh"
+    TinNhan ||--o{ NhatKyTacTu : "ghi vết"
+    DanhGia |o--o{ MauKiemThu : "lấy từ"
+    MauKiemThu ||--o{ KetQuaThucNghiem : "dự đoán"

@@ -1,0 +1,10 @@
+flowchart TD
+    S((Bắt đầu)) --> D1{Đơn đã HoanTat và chưa đánh giá?}
+    D1 -- Không --> X((Kết thúc))
+    D1 -- Có --> A1[Nhập số sao, nội dung, điểm tiêu chí]
+    A1 --> A2[Lưu đánh giá ChoDuyet]
+    A2 --> D2{Quản trị viên duyệt?}
+    D2 -- Ẩn --> A3[TrangThai = DaAn] --> X
+    D2 -- Duyệt --> A4[TrangThai = DaDuyet, cập nhật điểm sao]
+    A4 --> A5[Gửi tác vụ phân tích AI]
+    A5 --> X

@@ -1,0 +1,14 @@
+flowchart TD
+    S((Bắt đầu)) --> A1[Nhận câu hỏi]
+    A1 --> D0{Câu hỏi về sản phẩm / đánh giá?}
+    D0 -- Không --> A2[Từ chối lịch sự] --> L
+    D0 -- Có --> A3[Lập kế hoạch, chọn công cụ]
+    A3 --> A4[Tìm đánh giá liên quan + thống kê khía cạnh]
+    A4 --> D1{Có dẫn chứng?}
+    D1 -- Không --> A5[Trả lời: chưa có đánh giá đề cập] --> L
+    D1 -- Có --> A6[LLM sinh câu trả lời từ dẫn chứng]
+    A6 --> D2{Mọi ý có trích dẫn?}
+    D2 -- Không --> A6
+    D2 -- Có --> A7[Trả lời kèm trích dẫn]
+    A7 --> L[Ghi TinNhan và NhatKyTacTu]
+    L --> X((Kết thúc))

@@ -1,0 +1,25 @@
+flowchart LR
+    classDef tacnhan fill:#fff,stroke:#333,stroke-width:1.5px
+    classDef uc fill:#eef4ff,stroke:#3b6fd8
+    classDef ai fill:#fff4e5,stroke:#d9822b
+    G["«tác nhân»<br/>Khách vãng lai"]:::tacnhan
+    C["«tác nhân»<br/>Khách hàng"]:::tacnhan
+    A["«tác nhân»<br/>Quản trị viên"]:::tacnhan
+    AG["«tác nhân hệ thống»<br/>Review Intelligence Agent"]:::tacnhan
+    subgraph P2["Đánh giá sản phẩm"]
+        VR(["Xem đánh giá & tóm tắt ưu/nhược"]):::uc
+        WR(["Viết đánh giá sau khi mua"]):::uc
+        VP(["Kiểm tra đã mua hàng"]):::uc
+        CR(["Chấm điểm theo tiêu chí"]):::uc
+        ER(["Sửa / xóa đánh giá"]):::uc
+        RP(["Báo cáo đánh giá không phù hợp"]):::uc
+        MR(["Duyệt / ẩn đánh giá"]):::uc
+        AN(["Phân tích đánh giá mới"]):::ai
+    end
+    G --- VR
+    C --- WR & ER & RP
+    A --- MR
+    WR -.->|«bao gồm»| VP
+    CR -.->|«mở rộng»| WR
+    MR -.->|«bao gồm»| AN
+    AN --- AG

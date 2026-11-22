@@ -1,0 +1,68 @@
+erDiagram
+    GioHang {
+        int MaNguoiDung PK,FK
+        int MaBienThe PK,FK
+        int SoLuong
+        datetime2 NgayThem
+    }
+    PhieuGiamGia {
+        int MaPhieu PK
+        varchar MaCode UK
+        varchar KieuGiam
+        decimal GiaTriGiam
+        decimal GiamToiDa
+        decimal DonToiThieu
+        int SoLuotConLai
+    }
+    KhuyenMai {
+        int MaKhuyenMai PK
+        nvarchar Ten
+        decimal PhanTramGiam
+        int MaSanPham FK
+        int MaDanhMuc FK
+        datetime2 BatDau
+        datetime2 KetThuc
+    }
+    DonHang {
+        int MaDonHang PK
+        int MaNguoiDung FK
+        int MaPhieu FK
+        nvarchar TenNguoiNhan
+        varchar SoDienThoai
+        nvarchar DiaChiGiaoHang
+        varchar PhuongThucGiaoHang
+        varchar PhuongThucThanhToan
+    }
+    ChiTietDonHang {
+        int MaChiTietDH PK
+        int MaDonHang FK
+        int MaBienThe FK
+        int MaLo FK
+        decimal DonGia
+        int SoLuong
+        decimal ThanhTien
+    }
+    BienThe {
+        int MaBienThe PK
+    }
+    DanhMuc {
+        int MaDanhMuc PK
+    }
+    LoHang {
+        int MaLo PK
+    }
+    NguoiDung {
+        int MaNguoiDung PK
+    }
+    SanPham {
+        int MaSanPham PK
+    }
+    NguoiDung ||--o{ GioHang : "giỏ của"
+    BienThe ||--o{ GioHang : "chọn"
+    SanPham |o--o{ KhuyenMai : "áp cho"
+    DanhMuc |o--o{ KhuyenMai : "áp cho"
+    NguoiDung ||--o{ DonHang : "đặt"
+    PhieuGiamGia |o--o{ DonHang : "áp phiếu"
+    DonHang ||--o{ ChiTietDonHang : "gồm"
+    BienThe ||--o{ ChiTietDonHang : "mua"
+    LoHang |o--o{ ChiTietDonHang : "xuất từ lô"

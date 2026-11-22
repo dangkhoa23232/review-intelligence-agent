@@ -1,0 +1,22 @@
+sequenceDiagram
+    autonumber
+    actor U as Khách hàng
+    participant AG as Tác tử RAG (LangGraph)
+    participant V as Qdrant
+    participant CSDL as SQL Server
+    participant L as LLM
+    U->>AG: "Kem này có gây kích ứng cho da nhạy cảm?"
+    AG->>CSDL: Ghi TinNhan (NguoiDung)
+    AG->>L: Lập kế hoạch: khía cạnh cần hỏi, công cụ cần gọi
+    AG->>V: tim_danh_gia: tìm đoạn đánh giá liên quan
+    V-->>AG: Các đánh giá gần nhất + điểm
+    AG->>CSDL: thong_ke_khia_canh: đọc vw_ThongKeKhiaCanh
+    alt Không có dẫn chứng
+        AG-->>U: "Chưa có đánh giá nào nhắc tới nội dung này"
+    else Có dẫn chứng
+        AG->>L: Sinh câu trả lời chỉ từ dẫn chứng
+        L-->>AG: Câu trả lời kèm trích dẫn
+        AG->>AG: Kiểm soát: mỗi ý phải có trích dẫn
+        AG-->>U: Câu trả lời + đoạn trích dẫn chứng
+    end
+    AG->>CSDL: Ghi TinNhan (TroLy, DanChung), NhatKyTacTu

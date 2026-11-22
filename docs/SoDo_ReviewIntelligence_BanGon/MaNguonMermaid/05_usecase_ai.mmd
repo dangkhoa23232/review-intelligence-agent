@@ -1,0 +1,29 @@
+flowchart LR
+    classDef tacnhan fill:#fff,stroke:#333,stroke-width:1.5px
+    classDef uc fill:#eef4ff,stroke:#3b6fd8
+    classDef ai fill:#fff4e5,stroke:#d9822b
+    G["«tác nhân»<br/>Khách vãng lai / Khách hàng"]:::tacnhan
+    A["«tác nhân»<br/>Quản trị viên"]:::tacnhan
+    AG["«tác nhân hệ thống»<br/>Review Intelligence Agent"]:::tacnhan
+    EX["«hệ thống ngoài»<br/>LLM · Qdrant · BGE-M3"]:::tacnhan
+    subgraph P4["Phân tích đánh giá thông minh"]
+        QA(["Hỏi đáp về đánh giá có dẫn chứng"]):::ai
+        SS(["Tìm đánh giá theo ngữ nghĩa"]):::ai
+        SE(["Phân loại cảm xúc"]):::ai
+        AB(["Phân tích cảm xúc theo khía cạnh"]):::ai
+        SU(["Tóm tắt ưu/nhược, phát hiện vấn đề lặp lại"]):::ai
+        TD(["Bảng điều khiển xu hướng cảm xúc / khía cạnh"]):::ai
+        EV(["Thực nghiệm PhoBERT so với LLM"]):::ai
+        MT(["Tính độ chính xác, P/R/F1, phân tích lỗi"]):::ai
+        TR(["Xem nhật ký các bước của tác tử"]):::ai
+    end
+    G --- QA
+    A --- TD & EV & TR
+    QA -.->|«bao gồm»| SS
+    TD -.->|«bao gồm»| SU
+    EV -.->|«bao gồm»| MT
+    SE --- AG
+    AB --- AG
+    SU --- AG
+    QA --- AG
+    AG --- EX

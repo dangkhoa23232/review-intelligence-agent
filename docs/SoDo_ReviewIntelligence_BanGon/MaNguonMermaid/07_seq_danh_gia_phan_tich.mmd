@@ -1,0 +1,18 @@
+sequenceDiagram
+    autonumber
+    actor C as Khách hàng
+    actor A as Quản trị viên
+    participant API as Máy chủ API
+    participant CSDL as SQL Server
+    participant W as Tiến trình AI
+    participant V as Qdrant (BGE-M3)
+    C->>API: Gửi đánh giá (số sao, nội dung, điểm tiêu chí)
+    API->>CSDL: Kiểm tra dòng đơn của khách đã HoanTat
+    API->>CSDL: Ghi DanhGia (ChoDuyet), DiemTieuChi
+    A->>API: Duyệt đánh giá
+    API->>CSDL: DanhGia.TrangThai = DaDuyet (trigger cập nhật điểm sao)
+    API->>W: Gửi tác vụ phân tích
+    W->>W: Phân loại cảm xúc + khía cạnh (PhoBERT hoặc LLM)
+    W->>CSDL: Cập nhật DanhGia.CamXuc, ghi KetQuaKhiaCanh
+    W->>V: Tạo vector nhúng và lưu vào Qdrant
+    W->>CSDL: Cập nhật DanhGia.MaVectorQdrant

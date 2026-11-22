@@ -1,0 +1,13 @@
+flowchart TD
+    S((Bắt đầu)) --> A1[Khách mở giỏ hàng]
+    A1 --> D1{Đủ hàng?}
+    D1 -- Không --> A2[Báo hết hàng, sửa số lượng] --> A1
+    D1 -- Có --> A3[Nhập địa chỉ, chọn giao hàng và thanh toán]
+    A3 --> D2{Nhập mã giảm giá?}
+    D2 -- Có --> D3{Mã hợp lệ?}
+    D3 -- Không --> A4[Báo lỗi mã] --> D2
+    D3 -- Có --> A5[Tính lại tổng tiền]
+    D2 -- Không --> A5
+    A5 --> A6[Xác nhận đặt hàng]
+    A6 --> A7[Trừ kho theo lô, tạo đơn ChoXacNhan, xóa giỏ, gửi thông báo]
+    A7 --> X((Kết thúc))

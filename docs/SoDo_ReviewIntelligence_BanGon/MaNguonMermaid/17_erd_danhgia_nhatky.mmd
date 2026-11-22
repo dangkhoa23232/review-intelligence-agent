@@ -1,0 +1,64 @@
+erDiagram
+    KhiaCanh {
+        int MaKhiaCanh PK
+        nvarchar Ten UK
+        nvarchar MoTa
+    }
+    DanhGia {
+        int MaDanhGia PK
+        int MaSanPham FK
+        int MaNguoiDung FK
+        int MaChiTietDH FK
+        tinyint SoSao
+        nvarchar NoiDung
+        bit DaMuaHang
+        varchar TrangThai
+        varchar CamXuc
+    }
+    DiemTieuChi {
+        int MaDanhGia PK,FK
+        int MaKhiaCanh PK,FK
+        tinyint Diem
+    }
+    BaoCaoDanhGia {
+        int MaBaoCao PK
+        int MaDanhGia FK
+        int MaNguoiBaoCao FK
+        nvarchar LyDo
+        varchar TrangThai
+        datetime2 NgayTao
+    }
+    ThongBao {
+        bigint MaThongBao PK
+        int MaNguoiDung FK
+        nvarchar NoiDung
+        nvarchar LienKet
+        bit DaDoc
+        datetime2 NgayTao
+    }
+    NhatKyHeThong {
+        bigint MaNhatKy PK
+        int MaNguoiDung FK
+        varchar HanhDong
+        varchar DoiTuong
+        nvarchar ChiTiet
+        datetime2 NgayTao
+    }
+    ChiTietDonHang {
+        int MaChiTietDH PK
+    }
+    NguoiDung {
+        int MaNguoiDung PK
+    }
+    SanPham {
+        int MaSanPham PK
+    }
+    SanPham ||--o{ DanhGia : "được đánh giá"
+    NguoiDung ||--o{ DanhGia : "viết"
+    ChiTietDonHang |o--o| DanhGia : "xác thực mua"
+    DanhGia ||--o{ DiemTieuChi : "chấm"
+    KhiaCanh ||--o{ DiemTieuChi : "theo tiêu chí"
+    DanhGia ||--o{ BaoCaoDanhGia : "bị báo cáo"
+    NguoiDung ||--o{ BaoCaoDanhGia : "báo cáo"
+    NguoiDung ||--o{ ThongBao : "nhận"
+    NguoiDung |o--o{ NhatKyHeThong : "thực hiện"
