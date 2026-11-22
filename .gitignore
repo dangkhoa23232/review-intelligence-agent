@@ -424,3 +424,28 @@ FodyWeavers.xsd
 
 # Official VS Code C# Dev Kit Extension exclusion
 #*.lscache
+
+# =====================================================================
+# Review Intelligence Agent – bổ sung cho backend / frontend / ai-service
+# =====================================================================
+# Backend: cấu hình chứa mật khẩu/khóa thật (dùng appsettings.Development.example.json làm mẫu)
+backend/**/appsettings.Development.json
+backend/**/appsettings.Local.json
+
+# Frontend (Vite)
+node_modules/
+dist/
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# AI service (Python)
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+!ai-service/.env.example
+
+# Dữ liệu Qdrant (docker volume bind)
+ai-service/qdrant_storage/

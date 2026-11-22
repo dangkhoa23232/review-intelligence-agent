@@ -1,0 +1,14 @@
+# Web API
+fastapi>=0.115,<1.0
+uvicorn[standard]>=0.32
+pydantic-settings>=2.6
+
+# Vector DB + embedding (BGE-M3)
+qdrant-client>=1.12
+sentence-transformers>=3.3
+
+# Agent RAG
+langgraph>=0.2
+
+# SQL Server (cần cài "ODBC Driver 18 for SQL Server" trên máy)
+pyodbc>=5.2
