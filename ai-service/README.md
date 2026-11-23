@@ -23,6 +23,13 @@ $env:PYTHONUTF8 = "1"
 .venv\Scripts\python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 
+Hoặc trong VS Code: `Ctrl+Shift+P` → **Tasks: Run Task** → **AI Service (8000)** (xem `.vscode/tasks.json`).
+
+> ⚠ **Chỉ chạy 1 tiến trình ai-service cùng lúc.** Qdrant chạy chế độ nhúng (`QDRANT_MODE=local`) trong
+> `ai-service/qdrant_local/` và khóa thư mục này; tiến trình thứ hai (terminal khác, task trùng, hay vừa chạy task
+> vừa debug F5) sẽ lỗi *"Storage folder … is already accessed by another instance"*. Task VS Code đã đặt
+> `instanceLimit: 1` và kiểm tra cổng 8000 trước khi khởi động.
+
 Lần đầu tải mô hình từ Hugging Face: `wonrax/phobert-base-vietnamese-sentiment` (~540 MB) và `BAAI/bge-m3`
 (~2.2 GB). Mô hình được nạp sẵn khi khởi động.
 

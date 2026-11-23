@@ -1,0 +1,129 @@
+{
+  // Chạy dịch vụ của dự án ngay trong VS Code: Ctrl+Shift+P → "Tasks: Run Task".
+  //   • "Chạy tất cả dịch vụ"  → AI Service (8000) + Backend API (5080) + Frontend Web (5173), mỗi dịch vụ một terminal.
+  //   • Chạy / tắt từng dịch vụ: chọn đúng task; tắt bằng "Tasks: Terminate Task" (hoặc nút thùng rác ở terminal).
+  // Không task nào đụng tới schema CSDL hay dữ liệu.
+  "version": "2.0.0",
+  "tasks": [
+    // ------------------------------------------------------------------ AI Service – FastAPI :8000
+    {
+      // ⚠ CHỈ CHẠY 1 TIẾN TRÌNH ai-service CÙNG LÚC: Qdrant chạy chế độ nhúng (QDRANT_MODE=local) trong
+      // ai-service/qdrant_local/ và khóa thư mục này – tiến trình thứ hai sẽ lỗi "already accessed by another instance".
+      // Vì vậy: instanceLimit = 1 và task kiểm tra cổng 8000 chạy trước.
+      "label": "AI Service (8000)",
+      "detail": "uvicorn app.main:app – PhoBERT + BGE-M3 (GPU nếu có CUDA), đọc ai-service/.env. Chỉ 1 tiến trình!",
+      "type": "process",
+      "command": "${workspaceFolder}\\ai-service\\.venv\\Scripts\\python.exe",
+      "args": ["-m", "uvicorn", "app.main:app", "--host", "127.0.0.1", "--port", "8000"],
+      "options": {
+        // Thư mục làm việc = ai-service để pydantic-settings đọc đúng file .env và Qdrant dùng ./qdrant_local.
+        "cwd": "${workspaceFolder}/ai-service",
+        "env": { "PYTHONUTF8": "1", "PYTHONIOENCODING": "utf-8" }
+      },
+      "dependsOn": "Kiểm tra: ai-service chưa chạy",
+      "isBackground": true,
+      "runOptions": { "instanceLimit": 1 },
+      "presentation": { "group": "dich-vu", "panel": "dedicated", "reveal": "always", "clear": true },
+      "problemMatcher": {
+        "owner": "ai-service",
+        "pattern": { "regexp": "^__khong_bao_gio_khop__$" },
+        "background": {
+          "activesBegin": "Started server process|Waiting for application startup",
+          "endsPattern": "Application startup complete|Uvicorn running on"
+        }
+      }
+    },
+    {
+      "label": "Kiểm tra: ai-service chưa chạy",
+      "detail": "Dừng lại nếu cổng 8000 đang có tiến trình lắng nghe (tránh mở trùng Qdrant nhúng).",
+      "type": "process",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-Command",
+        "[Console]::OutputEncoding = [Text.Encoding]::UTF8; $c = Get-NetTCPConnection -LocalPort 8000 -State Listen -ErrorAction SilentlyContinue; if ($c) { Write-Host ('Cổng 8000 đang được PID ' + $c[0].OwningProcess + ' sử dụng – ai-service (Qdrant nhúng) chỉ được chạy 1 tiến trình. Hãy tắt tiến trình đó trước.'); exit 1 } else { Write-Host 'Cổng 8000 trống – khởi động ai-service.' }"
+      ],
+      "presentation": { "group": "dich-vu", "reveal": "silent" },
+      "problemMatcher": []
+    },
+
+    // ------------------------------------------------------------------ Backend API – ASP.NET Core 8 :5080
+    {
+      "label": "Backend API (5080)",
+      "detail": "dotnet run – profile 'http' trong launchSettings.json (http://localhost:5080, Swagger: /swagger)",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "${workspaceFolder}/backend/ReviewIntelligence.Api/ReviewIntelligence.Api.csproj",
+        "--launch-profile",
+        "http"
+      ],
+      "options": { "cwd": "${workspaceFolder}/backend/ReviewIntelligence.Api" },
+      "isBackground": true,
+      "runOptions": { "instanceLimit": 1 },
+      "presentation": { "group": "dich-vu", "panel": "dedicated", "reveal": "always", "clear": true },
+      "problemMatcher": {
+        "owner": "backend",
+        "pattern": { "regexp": "^__khong_bao_gio_khop__$" },
+        "background": {
+          "activesBegin": "Building|Đang dựng|dotnet run",
+          "endsPattern": "Now listening on|Application started|error"
+        }
+      }
+    },
+    {
+      "label": "build: backend",
+      "detail": "dotnet build (dùng cho cấu hình debug .NET trong launch.json)",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "${workspaceFolder}/backend/ReviewIntelligence.Api/ReviewIntelligence.Api.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "group": "build",
+      "presentation": { "reveal": "silent" },
+      "problemMatcher": "$msCompile"
+    },
+
+    // ------------------------------------------------------------------ Frontend Web – Vite :5173
+    {
+      "label": "Frontend Web (5173)",
+      "detail": "npm run dev trong frontend (http://localhost:5173)",
+      "type": "shell",
+      "command": "npm run dev",
+      "options": { "cwd": "${workspaceFolder}/frontend" },
+      "isBackground": true,
+      "runOptions": { "instanceLimit": 1 },
+      "presentation": { "group": "dich-vu", "panel": "dedicated", "reveal": "always", "clear": true },
+      "problemMatcher": {
+        "owner": "vite",
+        "pattern": { "regexp": "^__khong_bao_gio_khop__$" },
+        "background": {
+          "activesBegin": "vite|VITE",
+          "endsPattern": "Local:|ready in"
+        }
+      }
+    },
+
+    // ------------------------------------------------------------------ Tổng hợp
+    {
+      "label": "Chạy tất cả dịch vụ",
+      "detail": "AI Service (8000) + Backend API (5080) + Frontend Web (5173) song song",
+      "dependsOn": ["AI Service (8000)", "Backend API (5080)", "Frontend Web (5173)"],
+      "dependsOrder": "parallel",
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Chạy Backend + Frontend (không AI)",
+      "detail": "Khi không cần ai-service (duyệt đánh giá vẫn chạy, phân tích AI sẽ báo 503)",
+      "dependsOn": ["Backend API (5080)", "Frontend Web (5173)"],
+      "dependsOrder": "parallel",
+      "problemMatcher": []
+    }
+  ]
+}
