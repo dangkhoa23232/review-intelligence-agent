@@ -57,7 +57,19 @@ public record SanPhamTomTatDto(
     bool CoKhuyenMai,
     bool ConHang,
     decimal DiemTrungBinh,
-    int SoDanhGia);
+    int SoDanhGia)
+{
+    /// <summary>Giá bán gốc (gạch ngang) của biến thể có GiaThapNhat khi biến thể đó đang khuyến mãi; ngược lại null.</summary>
+    public decimal? GiaGoc { get; init; }
+
+    /// <summary>Số biến thể đang hoạt động.</summary>
+    public int SoBienThe { get; init; }
+
+    /// <summary>Biến thể dùng cho nút "Thêm vào giỏ" trên thẻ: còn hàng và rẻ nhất; null nếu chưa có biến thể.</summary>
+    public BienTheMacDinhDto? BienTheMacDinh { get; init; }
+}
+
+public record BienTheMacDinhDto(int MaBienThe, string DungTich, decimal GiaApDung, decimal? GiaGoc, int SoLuongTon);
 
 public record DanhMucRutGonDto(int MaDanhMuc, string Ten, string DuongDan);
 

@@ -76,12 +76,41 @@ public class SanPhamService(AppDbContext db) : ISanPhamService
         var tongSo = await duLieu.CountAsync(ct);
         var trang = await duLieu.Skip(q.BoQua).Take(q.KichThuoc).ToListAsync(ct);
 
-        var ketQua = trang.Select(x => new SanPhamTomTatDto(
-            x.MaSanPham, x.Ten, x.DuongDan, x.CongDung,
-            JsonCot.DocMangChuoi(x.DanhSachAnh).FirstOrDefault(),
-            x.TenThuongHieu, x.TenDanhMuc,
-            x.GiaThapNhat, x.CoKhuyenMai, x.ConHang,
-            x.DiemTrungBinh, x.SoDanhGia)).ToList();
+        // Biến thể của các sản phẩm trong trang → biến thể mặc định cho nút "Thêm vào giỏ" và giá gốc gạch ngang.
+        var maTrang = trang.Select(x => x.MaSanPham).ToList();
+        var bienThe = (await db.BienThe.AsNoTracking()
+                .Where(b => maTrang.Contains(b.MaSanPham) && b.DangHoatDong)
+                .Select(b => new { b.MaSanPham, b.MaBienThe, b.DungTich, b.GiaBan, b.GiaKhuyenMai, b.KhuyenMaiTu, b.KhuyenMaiDen, b.SoLuongTon })
+                .ToListAsync(ct))
+            .ToLookup(b => b.MaSanPham);
+
+        var ketQua = trang.Select(x =>
+        {
+            var ds = bienThe[x.MaSanPham]
+                .Select(b => new
+                {
+                    b.MaBienThe, b.DungTich, b.GiaBan, b.SoLuongTon,
+                    GiaApDung = GiaBan.ApDung(b.GiaBan, b.GiaKhuyenMai, b.KhuyenMaiTu, b.KhuyenMaiDen, now)
+                })
+                .OrderBy(b => b.SoLuongTon > 0 ? 0 : 1).ThenBy(b => b.GiaApDung).ThenBy(b => b.MaBienThe)
+                .ToList();
+            var re = ds.OrderBy(b => b.GiaApDung).ThenBy(b => b.MaBienThe).FirstOrDefault();
+            var macDinh = ds.FirstOrDefault();
+            return new SanPhamTomTatDto(
+                x.MaSanPham, x.Ten, x.DuongDan, x.CongDung,
+                JsonCot.DocMangChuoi(x.DanhSachAnh).FirstOrDefault(),
+                x.TenThuongHieu, x.TenDanhMuc,
+                x.GiaThapNhat, x.CoKhuyenMai, x.ConHang,
+                x.DiemTrungBinh, x.SoDanhGia)
+            {
+                GiaGoc = re is not null && re.GiaApDung < re.GiaBan ? re.GiaBan : null,
+                SoBienThe = ds.Count,
+                BienTheMacDinh = macDinh is null
+                    ? null
+                    : new BienTheMacDinhDto(macDinh.MaBienThe, macDinh.DungTich, macDinh.GiaApDung,
+                        macDinh.GiaApDung < macDinh.GiaBan ? macDinh.GiaBan : null, macDinh.SoLuongTon)
+            };
+        }).ToList();
 
         return new KetQuaPhanTrang<SanPhamTomTatDto>(ketQua, tongSo, q.Trang, q.KichThuoc);
     }

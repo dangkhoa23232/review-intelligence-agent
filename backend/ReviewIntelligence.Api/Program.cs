@@ -73,6 +73,12 @@ builder.Services.AddScoped<IGioHangService, GioHangService>();
 builder.Services.AddScoped<IPhieuGiamGiaService, PhieuGiamGiaService>();
 builder.Services.AddScoped<IDonHangService, DonHangService>();
 builder.Services.AddScoped<IAiService, AiService>();
+builder.Services.AddScoped<IAdminSanPhamService, AdminSanPhamService>();
+builder.Services.AddScoped<IAnhSanPhamService, AnhSanPhamService>();
+builder.Services.AddOptions<AnhSanPhamOptions>()
+    .Bind(builder.Configuration.GetSection(AnhSanPhamOptions.SectionName))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
 
 // ---------- ai-service (gửi đánh giá vừa duyệt đi phân tích ABSA + vector Qdrant) ----------
 builder.Services.AddOptions<AiServiceOptions>()

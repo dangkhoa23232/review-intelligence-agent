@@ -167,7 +167,12 @@ export default function ProductDetailPage() {
       <div className="mt-4 grid gap-10 md:grid-cols-2">
         {/* Ảnh */}
         <div>
-          <ProductImage src={sp.danhSachAnh[anhChon]} alt={sp.ten} className="aspect-square w-full rounded-2xl" />
+          <ProductImage
+            src={sp.danhSachAnh[anhChon]}
+            alt={sp.ten}
+            uuTien
+            className="aspect-square w-full rounded-2xl border border-gray-100"
+          />
           {sp.danhSachAnh.length > 1 && (
             <div className="mt-3 flex gap-2">
               {sp.danhSachAnh.map((a, i) => (
@@ -176,7 +181,7 @@ export default function ProductDetailPage() {
                   type="button"
                   onClick={() => setAnhChon(i)}
                   aria-label={`Ảnh ${i + 1}`}
-                  className={`h-16 w-16 overflow-hidden rounded-lg ring-2 ${i === anhChon ? 'ring-brand-500' : 'ring-transparent'}`}
+                  className={`h-20 w-20 overflow-hidden rounded-xl border border-gray-100 ring-2 ${i === anhChon ? 'ring-brand-500' : 'ring-transparent'}`}
                 >
                   <ProductImage src={a} alt={`${sp.ten} ${i + 1}`} className="h-full w-full text-base" />
                 </button>

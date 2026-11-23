@@ -2,6 +2,7 @@ import { NavLink, Outlet } from 'react-router'
 import RequireAuth from '@/components/auth/RequireAuth'
 
 const TAB = [
+  { to: '/admin/san-pham', nhan: 'Sản phẩm' },
   { to: '/admin/don-hang', nhan: 'Đơn hàng' },
   { to: '/admin/danh-gia', nhan: 'Duyệt đánh giá' },
   { to: '/admin/thong-ke', nhan: 'Thống kê cảm xúc' },

@@ -7,6 +7,8 @@ import AdminAgentPage from '@/pages/admin/AdminAgentPage'
 import AdminDashboardPage from '@/pages/admin/AdminDashboardPage'
 import AdminExperimentPage from '@/pages/admin/AdminExperimentPage'
 import AdminOrdersPage from '@/pages/admin/AdminOrdersPage'
+import AdminProductEditPage from '@/pages/admin/AdminProductEditPage'
+import AdminProductsPage from '@/pages/admin/AdminProductsPage'
 import AdminReviewsPage from '@/pages/admin/AdminReviewsPage'
 import CartPage from '@/pages/CartPage'
 import CheckoutPage from '@/pages/CheckoutPage'
@@ -42,6 +44,8 @@ export const router = createBrowserRouter([
         element: <AdminLayout />,
         children: [
           { index: true, element: <Navigate to="/admin/don-hang" replace /> },
+          { path: 'san-pham', element: <AdminProductsPage /> },
+          { path: 'san-pham/:ma', element: <AdminProductEditPage /> },
           { path: 'don-hang', element: <AdminOrdersPage /> },
           { path: 'danh-gia', element: <AdminReviewsPage /> },
           { path: 'thong-ke', element: <AdminDashboardPage /> },
