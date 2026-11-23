@@ -11,8 +11,30 @@ export function OrderStatusBadge({ trangThai }: { trangThai: TrangThaiDonHang })
   )
 }
 
-/** Danh sách sản phẩm trong đơn (đã gộp theo biến thể). */
-export function OrderItems({ dong, hienNutDanhGia = false }: { dong: DongDonHang[]; hienNutDanhGia?: boolean }) {
+/** Nút "Viết đánh giá" (kèm maChiTietDH để form chọn sẵn) hoặc nhãn "Đã đánh giá". */
+function TrangThaiDanhGia({ d }: { d: DongDonHang }) {
+  if (d.daDanhGia) {
+    return (
+      <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700 ring-1 ring-green-600/20 ring-inset">
+        ✓ Đã đánh giá
+      </span>
+    )
+  }
+  if (d.coTheDanhGia && d.maChiTietDHDeDanhGia !== null) {
+    return (
+      <Link
+        to={`/san-pham/${d.duongDan}?maChiTietDH=${d.maChiTietDHDeDanhGia}#viet-danh-gia`}
+        className="mt-1 inline-block rounded-full bg-brand-500 px-3 py-1 text-xs font-medium text-white hover:bg-brand-600"
+      >
+        Viết đánh giá
+      </Link>
+    )
+  }
+  return null
+}
+
+/** Danh sách sản phẩm trong đơn (đã gộp theo biến thể). hienDanhGia: chỉ bật khi đơn HoanTat. */
+export function OrderItems({ dong, hienDanhGia = false }: { dong: DongDonHang[]; hienDanhGia?: boolean }) {
   return (
     <ul className="divide-y divide-gray-100">
       {dong.map((d) => (
@@ -28,14 +50,7 @@ export function OrderItems({ dong, hienNutDanhGia = false }: { dong: DongDonHang
             <p className="mt-1 text-xs text-gray-600">
               {dinhDangTien(d.donGia)} × {d.soLuong}
             </p>
-            {hienNutDanhGia && d.coTheDanhGia && (
-              <Link
-                to={`/san-pham/${d.duongDan}#viet-danh-gia`}
-                className="mt-1 inline-block text-xs font-medium text-brand-600 hover:underline"
-              >
-                Viết đánh giá ›
-              </Link>
-            )}
+            {hienDanhGia && <TrangThaiDanhGia d={d} />}
           </div>
           <p className="text-sm font-semibold text-gray-900">{dinhDangTien(d.thanhTien)}</p>
         </li>

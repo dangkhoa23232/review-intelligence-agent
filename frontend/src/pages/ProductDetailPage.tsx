@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router'
+import { Link, useLocation, useParams } from 'react-router'
 import { StarRating } from '@/components/common/StarRating'
 import { DangTai, HopLoi } from '@/components/common/TrangThaiTai'
 import AddToCart from '@/components/product/AddToCart'
@@ -124,6 +124,16 @@ export default function ProductDetailPage() {
     setAnhChon(0)
     document.title = `${sp.ten} – Review Intelligence`
   }, [sp])
+
+  // Dữ liệu tải bất đồng bộ nên trình duyệt không tự cuộn tới #hash (ví dụ #viet-danh-gia) → cuộn thủ công.
+  const { hash } = useLocation()
+  useEffect(() => {
+    if (!sp || !hash) return
+    const id = window.setTimeout(() => {
+      document.getElementById(decodeURIComponent(hash.slice(1)))?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 50)
+    return () => window.clearTimeout(id)
+  }, [sp, hash])
 
   if (loi) {
     return (

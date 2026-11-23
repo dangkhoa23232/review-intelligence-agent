@@ -93,8 +93,14 @@ public record DongDonHangDto(
     decimal DonGia,
     int SoLuong,
     decimal ThanhTien,
-    // Đơn HoanTat và còn dòng chưa được đánh giá.
-    bool CoTheDanhGia);
+    // Các ChiTietDonHang.MaChiTietDH đã gộp vào dòng này (nhiều mã khi xuất từ nhiều lô).
+    IReadOnlyList<int> CacMaChiTietDH,
+    // Đã có đánh giá gắn với một trong các MaChiTietDH của dòng.
+    bool DaDanhGia,
+    // Đơn HoanTat và dòng chưa được đánh giá.
+    bool CoTheDanhGia,
+    // MaChiTietDH dùng để viết đánh giá (khi CoTheDanhGia), null nếu không.
+    int? MaChiTietDHDeDanhGia);
 
 public record DonHangChiTietDto(
     int MaDonHang,

@@ -49,7 +49,8 @@ public class DanhGiaService(AppDbContext db, IHangDoiPhanTichDanhGia hangDoiAi) 
                     x.DonHang.MaNguoiDung,
                     x.DonHang.TrangThai,
                     x.BienThe.MaSanPham,
-                    DaDanhGia = x.DanhGia != null
+                    // Cùng biến thể trong cùng đơn (các lô FEFO) chỉ được đánh giá một lần.
+                    DaDanhGia = x.DonHang.ChiTietDonHangs.Any(o => o.MaBienThe == x.MaBienThe && o.DanhGia != null)
                 })
                 .FirstOrDefaultAsync(ct);
 
@@ -60,7 +61,7 @@ public class DanhGiaService(AppDbContext db, IHangDoiPhanTichDanhGia hangDoiAi) 
             if (dong.TrangThai != TrangThaiDonHang.HoanTat)
                 return KetQua<DanhGiaDaTaoDto>.Loi(StatusCodes.Status400BadRequest, "Chỉ được đánh giá khi đơn hàng đã hoàn tất.");
             if (dong.DaDanhGia)
-                return KetQua<DanhGiaDaTaoDto>.Loi(StatusCodes.Status409Conflict, "Dòng đơn hàng này đã được đánh giá.");
+                return KetQua<DanhGiaDaTaoDto>.Loi(StatusCodes.Status409Conflict, "Sản phẩm này trong đơn hàng đã được đánh giá.");
 
             daMuaHang = true;
         }
@@ -94,12 +95,17 @@ public class DanhGiaService(AppDbContext db, IHangDoiPhanTichDanhGia hangDoiAi) 
             danhGia.MaDanhGia, danhGia.MaSanPham, danhGia.TrangThai, danhGia.DaMuaHang, danhGia.NgayTao));
     }
 
+    /// <summary>
+    /// Mỗi (đơn HoanTat, biến thể) chưa đánh giá trả về một dòng – MaChiTietDH nhỏ nhất của nhóm,
+    /// khớp MaChiTietDHDeDanhGia ở trang chi tiết đơn hàng.
+    /// </summary>
     public async Task<IReadOnlyList<DongDonCoTheDanhGiaDto>> DongDonCoTheDanhGiaAsync(int maNguoiDung, int maSanPham, CancellationToken ct) =>
         await db.ChiTietDonHang.AsNoTracking()
             .Where(x => x.DonHang.MaNguoiDung == maNguoiDung
                         && x.DonHang.TrangThai == TrangThaiDonHang.HoanTat
                         && x.BienThe.MaSanPham == maSanPham
-                        && x.DanhGia == null)
+                        && !x.DonHang.ChiTietDonHangs.Any(o => o.MaBienThe == x.MaBienThe && o.DanhGia != null)
+                        && !x.DonHang.ChiTietDonHangs.Any(o => o.MaBienThe == x.MaBienThe && o.MaChiTietDH < x.MaChiTietDH))
             .OrderByDescending(x => x.DonHang.NgayDat)
             .Select(x => new DongDonCoTheDanhGiaDto(x.MaChiTietDH, x.MaDonHang, x.BienThe.DungTich, x.DonHang.NgayDat))
             .ToListAsync(ct);

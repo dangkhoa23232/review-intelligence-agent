@@ -38,7 +38,13 @@ export interface DongDonHang {
   donGia: number
   soLuong: number
   thanhTien: number
+  /** Các ChiTietDonHang gộp vào dòng (nhiều mã khi xuất từ nhiều lô). */
+  cacMaChiTietDH: number[]
+  daDanhGia: boolean
+  /** Đơn HoanTat và dòng chưa được đánh giá. */
   coTheDanhGia: boolean
+  /** MaChiTietDH truyền sang form đánh giá (null khi không thể đánh giá). */
+  maChiTietDHDeDanhGia: number | null
 }
 
 export interface DonHangChiTiet {

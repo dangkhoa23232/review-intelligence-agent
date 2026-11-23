@@ -280,6 +280,7 @@ public class DonHangService(AppDbContext db, ILogger<DonHangService> logger) : I
 
     private sealed class DongRaw
     {
+        public int MaChiTietDH { get; init; }
         public int MaBienThe { get; init; }
         public int MaSanPham { get; init; }
         public string TenSanPham { get; init; } = null!;
@@ -344,6 +345,7 @@ public class DonHangService(AppDbContext db, ILogger<DonHangService> logger) : I
                     .OrderBy(c => c.MaChiTietDH)
                     .Select(c => new DongRaw
                     {
+                        MaChiTietDH = c.MaChiTietDH,
                         MaBienThe = c.MaBienThe,
                         MaSanPham = c.BienThe.MaSanPham,
                         TenSanPham = c.BienThe.SanPham.Ten,
@@ -368,12 +370,19 @@ public class DonHangService(AppDbContext db, ILogger<DonHangService> logger) : I
                 .Select(g =>
                 {
                     var c = g.First();
+                    // Một sản phẩm đã mua chỉ cần một đánh giá: nhóm (có thể gồm nhiều lô) coi là
+                    // đã đánh giá khi bất kỳ MaChiTietDH nào trong nhóm đã có DanhGia.
+                    var daDanhGia = g.Any(x => x.DaDanhGia);
+                    var coTheDanhGia = hoanTat && !daDanhGia;
                     return new DongDonHangDto(
                         c.MaBienThe, c.MaSanPham, c.TenSanPham, c.DuongDan,
                         JsonCot.DocMangChuoi(c.DanhSachAnh).FirstOrDefault(),
                         c.DungTich, c.MaSKU, c.DonGia,
                         g.Sum(x => x.SoLuong), g.Sum(x => x.ThanhTien),
-                        hoanTat && g.Any(x => !x.DaDanhGia));
+                        g.Select(x => x.MaChiTietDH).ToList(),
+                        daDanhGia,
+                        coTheDanhGia,
+                        coTheDanhGia ? c.MaChiTietDH : null);
                 })
                 .ToList();
 

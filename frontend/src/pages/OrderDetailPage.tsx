@@ -120,7 +120,7 @@ export default function OrderDetailPage() {
       <div className="mt-8 grid gap-8 md:grid-cols-[1fr_300px]">
         <section>
           <h2 className="font-semibold text-gray-900">Sản phẩm</h2>
-          <OrderItems dong={don.sanPham} hienNutDanhGia />
+          <OrderItems dong={don.sanPham} hienDanhGia={don.trangThai === 'HoanTat'} />
         </section>
 
         <aside className="space-y-6">

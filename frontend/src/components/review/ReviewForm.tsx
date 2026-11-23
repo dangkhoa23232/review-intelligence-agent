@@ -16,8 +16,11 @@ const NOI_DUNG_TOI_DA = 2000
 export default function ReviewForm({ maSanPham }: { maSanPham: number }) {
   const { nguoiDung } = useAuth()
   const location = useLocation()
+  // ?maChiTietDH=... từ nút "Viết đánh giá" ở trang chi tiết đơn hàng.
+  const maChiTietDHTuUrl = Number(new URLSearchParams(location.search).get('maChiTietDH')) || null
 
   const [khiaCanh, setKhiaCanh] = useState<KhiaCanh[]>([])
+  const [maTuUrlKhongHopLe, setMaTuUrlKhongHopLe] = useState(false)
   const [dongDon, setDongDon] = useState<DongDonCoTheDanhGia[]>([])
   const [soSao, setSoSao] = useState(0)
   const [diem, setDiem] = useState<Record<number, number>>({})
@@ -36,16 +39,19 @@ export default function ReviewForm({ maSanPham }: { maSanPham: number }) {
       .dongDonCoTheDanhGia(maSanPham)
       .then((ds) => {
         setDongDon(ds)
-        if (ds.length > 0) setMaChiTietDH(ds[0].maChiTietDH)
+        const tuUrl = maChiTietDHTuUrl !== null ? ds.find((d) => d.maChiTietDH === maChiTietDHTuUrl) : undefined
+        // Ưu tiên dòng đơn được chỉ định trên URL; nếu không hợp lệ thì chọn dòng mới nhất.
+        setMaChiTietDH(tuUrl?.maChiTietDH ?? ds[0]?.maChiTietDH ?? '')
+        setMaTuUrlKhongHopLe(maChiTietDHTuUrl !== null && !tuUrl)
       })
       .catch(() => setDongDon([]))
-  }, [laKhachHang, maSanPham])
+  }, [laKhachHang, maSanPham, maChiTietDHTuUrl])
 
   if (!nguoiDung) {
     return (
       <div className="rounded-2xl bg-gray-50 p-6 text-center text-sm text-gray-600">
         <Link
-          to={`/dang-nhap?tiepTuc=${encodeURIComponent(location.pathname + '#viet-danh-gia')}`}
+          to={`/dang-nhap?tiepTuc=${encodeURIComponent(location.pathname + location.search + '#viet-danh-gia')}`}
           className="font-medium text-brand-600 hover:underline"
         >
           Đăng nhập
@@ -158,6 +164,13 @@ export default function ReviewForm({ maSanPham }: { maSanPham: number }) {
           </select>
           <span className="mt-1 block text-xs text-gray-500">Đánh giá gắn đơn sẽ có huy hiệu “Đã mua hàng”.</span>
         </label>
+      )}
+
+      {maTuUrlKhongHopLe && (
+        <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+          Dòng đơn hàng #{maChiTietDHTuUrl} đã được đánh giá hoặc không còn hợp lệ
+          {dongDon.length > 0 ? ' – đã chọn đơn khác bên trên.' : '.'}
+        </p>
       )}
 
       <label className="block">
