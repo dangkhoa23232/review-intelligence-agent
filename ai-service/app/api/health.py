@@ -23,17 +23,17 @@ class HealthResponse(BaseModel):
 
 
 def _kiem_tra_qdrant() -> ThanhPhan:
+    s = get_settings()
     try:
         collections = [c.name for c in get_qdrant().get_collections().collections]
-        coll = get_settings().qdrant_collection
-        return ThanhPhan(ok=True, chi_tiet=f"collection '{coll}' {'đã có' if coll in collections else 'chưa tạo'}")
+        return ThanhPhan(ok=True, chi_tiet=f"mode={s.qdrant_mode}; collections={collections}")
     except Exception as e:  # noqa: BLE001 – health-check chỉ báo trạng thái
         return ThanhPhan(ok=False, chi_tiet=str(e))
 
 
 def _kiem_tra_sql_server() -> ThanhPhan:
     try:
-        with get_connection(timeout=3) as conn:
+        with get_connection(timeout=5) as conn:
             conn.cursor().execute("SELECT 1").fetchone()
         return ThanhPhan(ok=True)
     except Exception as e:  # noqa: BLE001
@@ -48,9 +48,4 @@ def health(response: Response) -> HealthResponse:
     ok = qdrant.ok and sql.ok
     if not ok:
         response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
-    return HealthResponse(
-        trang_thai="ok" if ok else "loi",
-        thoi_gian=datetime.now(timezone.utc),
-        qdrant=qdrant,
-        sql_server=sql,
-    )
+    return HealthResponse(trang_thai="ok" if ok else "loi", thoi_gian=datetime.now(timezone.utc), qdrant=qdrant, sql_server=sql)

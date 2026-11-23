@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router'
 import { StarRating } from '@/components/common/StarRating'
 import { DangTai, HopLoi } from '@/components/common/TrangThaiTai'
+import ChatBox from '@/components/ai/ChatBox'
 import AddToCart from '@/components/product/AddToCart'
 import ProductImage from '@/components/product/ProductImage'
 import AspectSummary from '@/components/review/AspectSummary'
@@ -269,6 +270,11 @@ export default function ProductDetailPage() {
         <div className="mt-4">
           <AspectSummary tomTat={sp.tomTatKhiaCanh} />
         </div>
+      </section>
+
+      {/* Hỏi đáp RAG có dẫn chứng */}
+      <section className="mt-14" aria-label="Hỏi trợ lý AI">
+        <ChatBox maSanPham={sp.maSanPham} tenSanPham={sp.ten} />
       </section>
 
       {/* Đánh giá */}

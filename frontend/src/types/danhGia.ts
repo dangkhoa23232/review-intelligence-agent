@@ -78,6 +78,8 @@ export interface DoiTrangThaiDanhGiaResponse {
   trangThai: TrangThaiDanhGia
   sanPham: { maSanPham: number; diemTrungBinh: number; soDanhGia: number }
   daGuiPhanTichAi: boolean
+  /** Đánh giá rời DaDuyet → đã gửi ai-service xóa vector Qdrant và tính lại tóm tắt. */
+  daGuiGoBoVector: boolean
 }
 
 export interface BaoCaoDanhGia {

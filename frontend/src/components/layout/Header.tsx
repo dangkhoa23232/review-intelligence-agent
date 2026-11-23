@@ -51,14 +51,9 @@ export default function Header() {
             </NavLink>
           )}
           {laQuanTri && (
-            <>
-              <NavLink to="/admin/don-hang" className={lopNav}>
-                Quản lý đơn
-              </NavLink>
-              <NavLink to="/admin/danh-gia" className={lopNav}>
-                Duyệt đánh giá
-              </NavLink>
-            </>
+            <NavLink to="/admin" className={lopNav}>
+              Quản trị
+            </NavLink>
           )}
 
           {!laQuanTri && <NutGioHang />}

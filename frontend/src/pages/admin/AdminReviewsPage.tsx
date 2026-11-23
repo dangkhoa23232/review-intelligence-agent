@@ -119,7 +119,11 @@ export default function AdminReviewsPage() {
     try {
       const kq = await adminDanhGiaApi.doiTrangThai(dg.maDanhGia, trangThai)
       const hanhDong = trangThai === 'DaDuyet' ? 'Đã duyệt' : 'Đã ẩn'
-      const ai = kq.daGuiPhanTichAi ? ' Đã gửi sang AI phân tích.' : ''
+      const ai = kq.daGuiPhanTichAi
+        ? ' Đã gửi sang AI phân tích cảm xúc, khía cạnh và lưu vector.'
+        : kq.daGuiGoBoVector
+          ? ' Đã gửi AI gỡ vector khỏi Qdrant và cập nhật tóm tắt.'
+          : ''
       setThongBao({
         loai: 'ok',
         noiDung: `${hanhDong} đánh giá #${kq.maDanhGia}. “${dg.tenSanPham}” hiện có ${kq.sanPham.diemTrungBinh.toFixed(2)}★ từ ${kq.sanPham.soDanhGia} đánh giá.${ai}`,

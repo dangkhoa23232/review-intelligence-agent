@@ -218,8 +218,13 @@ public class DanhGiaService(AppDbContext db, IHangDoiPhanTichDanhGia hangDoiAi) 
                       && req.TrangThai == TrangThaiDanhGia.DaDuyet
                       && hangDoiAi.DuaVao(maDanhGia);
 
+        // Rời DaDuyet (bị ẩn) → gỡ vector khỏi Qdrant và tính lại TomTatKhiaCanh.
+        var daGuiGoBo = trangThaiCu == TrangThaiDanhGia.DaDuyet
+                        && req.TrangThai != TrangThaiDanhGia.DaDuyet
+                        && hangDoiAi.DuaVaoGoBo(maDanhGia);
+
         return KetQua<DoiTrangThaiDanhGiaResponse>.ThanhCong(
-            new DoiTrangThaiDanhGiaResponse(maDanhGia, trangThaiCu, dg.TrangThai, thongKe, daGuiAi));
+            new DoiTrangThaiDanhGiaResponse(maDanhGia, trangThaiCu, dg.TrangThai, thongKe, daGuiAi, daGuiGoBo));
     }
 
     /// <summary>

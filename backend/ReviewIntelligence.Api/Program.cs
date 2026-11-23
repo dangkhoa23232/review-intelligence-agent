@@ -72,6 +72,7 @@ builder.Services.AddScoped<IDanhGiaService, DanhGiaService>();
 builder.Services.AddScoped<IGioHangService, GioHangService>();
 builder.Services.AddScoped<IPhieuGiamGiaService, PhieuGiamGiaService>();
 builder.Services.AddScoped<IDonHangService, DonHangService>();
+builder.Services.AddScoped<IAiService, AiService>();
 
 // ---------- ai-service (gửi đánh giá vừa duyệt đi phân tích ABSA + vector Qdrant) ----------
 builder.Services.AddOptions<AiServiceOptions>()

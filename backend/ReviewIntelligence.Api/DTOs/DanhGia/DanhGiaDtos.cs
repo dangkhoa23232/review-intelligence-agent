@@ -127,6 +127,7 @@ public record DoiTrangThaiDanhGiaResponse(
     string TrangThaiCu,
     string TrangThai,
     ThongKeSanPhamDto SanPham,
-    bool DaGuiPhanTichAi);
+    bool DaGuiPhanTichAi,
+    bool DaGuiGoBoVector);
 
 public record BaoCaoDanhGiaDto(int MaBaoCao, int MaDanhGia, string LyDo, string TrangThai, DateTime NgayTao);

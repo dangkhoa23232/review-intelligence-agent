@@ -449,3 +449,4 @@ venv/
 
 # Dữ liệu Qdrant (docker volume bind)
 ai-service/qdrant_storage/
+ai-service/qdrant_local/

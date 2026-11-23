@@ -1,14 +1,17 @@
-# Web API
+# ===== Nền tảng (bắt buộc) =====
 fastapi>=0.115,<1.0
 uvicorn[standard]>=0.32
 pydantic-settings>=2.6
+pyodbc>=5.2                 # cần "ODBC Driver 18 for SQL Server"
+qdrant-client>=1.12         # chế độ local (nhúng, không cần Docker) hoặc server
+langgraph>=0.2              # đồ thị tác tử hỏi đáp RAG
+anthropic>=0.70             # LLM zero-shot / few-shot + trả lời RAG (cần ANTHROPIC_API_KEY)
 
-# Vector DB + embedding (BGE-M3)
-qdrant-client>=1.12
-sentence-transformers>=3.3
-
-# Agent RAG
-langgraph>=0.2
-
-# SQL Server (cần cài "ODBC Driver 18 for SQL Server" trên máy)
-pyodbc>=5.2
+# ===== Mô hình học sâu (khuyến nghị) =====
+# Cài PyTorch trước theo phần cứng, ví dụ GPU NVIDIA (CUDA 12.4):
+#   pip install torch --index-url https://download.pytorch.org/whl/cu124
+# hoặc chỉ CPU:
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+transformers>=4.44          # PhoBERT (wonrax/phobert-base-vietnamese-sentiment)
+sentence-transformers>=3.3  # BGE-M3 (BAAI/bge-m3)
+pyvi>=0.1.1                 # tách từ tiếng Việt cho PhoBERT

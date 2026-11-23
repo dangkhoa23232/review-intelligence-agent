@@ -13,6 +13,7 @@ public class AiServiceOptions
     [Required, Url]
     public string BaseUrl { get; set; } = "http://localhost:8000/";
 
-    [Range(1, 300)]
-    public int ThoiGianChoGiay { get; set; } = 10;
+    /// <summary>Hỏi đáp RAG có thể gọi Claude và nạp BGE-M3 lần đầu → cần thời gian chờ dài hơn.</summary>
+    [Range(1, 600)]
+    public int ThoiGianChoGiay { get; set; } = 120;
 }
