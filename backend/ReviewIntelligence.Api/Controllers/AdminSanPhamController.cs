@@ -78,13 +78,18 @@ public class AdminSanPhamController(IAdminSanPhamService sanPham) : ApiControlle
         TraVe(await sanPham.NhapLoHangAsync(maSanPham, maBienThe, req, ct), StatusCodes.Status201Created);
 }
 
-/// <summary>Tải ảnh sản phẩm lên thư mục frontend/public/images/san-pham.</summary>
+/// <summary>Ảnh sản phẩm trong thư mục frontend/public/images/san-pham: tải lên và liệt kê để chọn.</summary>
 [Authorize(Policy = ChinhSach.QuanTri)]
-[Route("api/admin/upload-anh")]
+[Route("api/admin")]
 public class AdminUploadAnhController(IAnhSanPhamService anh) : ApiControllerBase
 {
+    /// <summary>Ảnh (.jpg/.png/.webp) đang có trong thư mục, mới sửa trước – dùng cho "Chọn từ thư mục".</summary>
+    [HttpGet("anh-san-pham")]
+    [ProducesResponseType(typeof(IReadOnlyList<AnhTrongThuMucDto>), StatusCodes.Status200OK)]
+    public IActionResult DanhSach() => Ok(anh.DanhSach());
+
     /// <summary>multipart/form-data, trường "tep": ảnh .jpg/.png/.webp. Trả đường dẫn /images/san-pham/&lt;ten-file&gt;.</summary>
-    [HttpPost]
+    [HttpPost("upload-anh")]
     [Consumes("multipart/form-data")]
     [RequestSizeLimit(21 * 1024 * 1024)]
     [RequestFormLimits(MultipartBodyLengthLimit = 21 * 1024 * 1024)]

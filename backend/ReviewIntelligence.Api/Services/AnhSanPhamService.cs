@@ -7,6 +7,7 @@ namespace ReviewIntelligence.Api.Services;
 public interface IAnhSanPhamService
 {
     Task<KetQua<AnhDaTaiLenDto>> LuuAsync(IFormFile? tep, CancellationToken ct);
+    IReadOnlyList<AnhTrongThuMucDto> DanhSach();
 }
 
 /// <summary>
@@ -62,6 +63,21 @@ public class AnhSanPhamService(IOptions<AnhSanPhamOptions> options, IWebHostEnvi
         var congKhai = $"{cfg.DuongDanCongKhai.TrimEnd('/')}/{tenTep}";
         logger.LogInformation("Đã lưu ảnh sản phẩm {DuongDan} ({KichThuoc} byte).", congKhai, ms.Length);
         return KetQua<AnhDaTaiLenDto>.ThanhCong(new AnhDaTaiLenDto(congKhai, tenTep, ms.Length));
+    }
+
+    public IReadOnlyList<AnhTrongThuMucDto> DanhSach()
+    {
+        var cfg = options.Value;
+        var thuMuc = new DirectoryInfo(Path.GetFullPath(Path.Combine(env.ContentRootPath, cfg.ThuMucLuu)));
+        if (!thuMuc.Exists) return [];
+
+        var tienTo = cfg.DuongDanCongKhai.TrimEnd('/');
+        return thuMuc.EnumerateFiles("*", SearchOption.TopDirectoryOnly)
+            .Where(f => DuoiHopLe.ContainsKey(f.Extension))
+            .OrderByDescending(f => f.LastWriteTimeUtc).ThenBy(f => f.Name, StringComparer.OrdinalIgnoreCase)
+            .Take(500)
+            .Select(f => new AnhTrongThuMucDto($"{tienTo}/{Uri.EscapeDataString(f.Name)}", f.Name, f.Length, f.LastWriteTimeUtc))
+            .ToList();
     }
 
     private static KetQua<AnhDaTaiLenDto> Loi(string thongBao) =>

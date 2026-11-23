@@ -5,7 +5,7 @@ export const ANH_MAC_DINH = '/images/san-pham/mac-dinh.webp'
 
 /**
  * Ảnh sản phẩm: ảnh gốc → ảnh mặc định → ô chữ cái đầu (nếu cả ảnh mặc định cũng lỗi).
- * Nền nhạt + object-cover giữ khung vuông cân đối với mọi tỉ lệ ảnh tải lên.
+ * object-contain trên nền trắng: ảnh dọc (chai, tuýp) hay ngang (hộp) đều hiện trọn thân và nhãn, không bị cắt.
  */
 export default function ProductImage({
   src,
@@ -42,7 +42,7 @@ export default function ProductImage({
       loading={uuTien ? 'eager' : 'lazy'}
       decoding="async"
       onError={() => setBuoc((b) => (b === 0 ? 1 : 2))}
-      className={`bg-gray-50 object-cover ${className}`}
+      className={`bg-white object-contain ${className}`}
     />
   )
 }

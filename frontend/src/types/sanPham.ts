@@ -205,3 +205,10 @@ export interface AnhDaTaiLen {
   tenTep: string
   kichThuoc: number
 }
+
+export interface AnhTrongThuMuc {
+  duongDan: string
+  tenTep: string
+  kichThuoc: number
+  ngaySua: string
+}

@@ -12,6 +12,7 @@ import { sanPhamApi } from '@/services/api/sanPhamApi'
 import type { DanhGia } from '@/types/danhGia'
 import type { BienThe, SanPhamChiTiet } from '@/types/sanPham'
 import { dinhDangNgay, dinhDangTien } from '@/utils/format'
+import { layNguonAnh } from '@/utils/nguonAnh'
 import { thongBaoLoi, useAsync } from '@/utils/useAsync'
 
 function TrangThaiKho({ bt }: { bt: BienThe }) {
@@ -151,6 +152,7 @@ export default function ProductDetailPage() {
   if (dangTai || !sp) return <DangTai />
 
   const bienThe = sp.bienThe.find((b) => b.maBienThe === maBienThe) ?? null
+  const nguonAnh = layNguonAnh(sp.danhSachAnh[anhChon])
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
@@ -171,8 +173,21 @@ export default function ProductDetailPage() {
             src={sp.danhSachAnh[anhChon]}
             alt={sp.ten}
             uuTien
-            className="aspect-square w-full rounded-2xl border border-gray-100"
+            className="aspect-square w-full rounded-2xl border border-gray-100 p-4"
           />
+          {nguonAnh && (
+            <p className="mt-1.5 text-xs text-gray-500">
+              Ảnh:{' '}
+              <a href={nguonAnh.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-brand-600">
+                {nguonAnh.tacGia}
+              </a>
+              ,{' '}
+              <a href={nguonAnh.urlGiayPhep} target="_blank" rel="noopener noreferrer" className="underline hover:text-brand-600">
+                {nguonAnh.giayPhep}
+              </a>{' '}
+              (đã cắt nền)
+            </p>
+          )}
           {sp.danhSachAnh.length > 1 && (
             <div className="mt-3 flex gap-2">
               {sp.danhSachAnh.map((a, i) => (
@@ -183,7 +198,7 @@ export default function ProductDetailPage() {
                   aria-label={`Ảnh ${i + 1}`}
                   className={`h-20 w-20 overflow-hidden rounded-xl border border-gray-100 ring-2 ${i === anhChon ? 'ring-brand-500' : 'ring-transparent'}`}
                 >
-                  <ProductImage src={a} alt={`${sp.ten} ${i + 1}`} className="h-full w-full text-base" />
+                  <ProductImage src={a} alt={`${sp.ten} ${i + 1}`} className="h-full w-full p-1 text-base" />
                 </button>
               ))}
             </div>

@@ -98,7 +98,7 @@ export default function ProductCard({ sp }: { sp: SanPhamTomTat }) {
         <ProductImage
           src={sp.anhDaiDien}
           alt={sp.ten}
-          className="aspect-square w-full transition-transform duration-300 group-hover:scale-[1.03]"
+          className="aspect-square w-full p-3 transition-transform duration-300 group-hover:scale-[1.03]"
         />
         <div className="absolute left-2 top-2 flex flex-col gap-1">
           {phanTramGiam !== null && phanTramGiam > 0 && (

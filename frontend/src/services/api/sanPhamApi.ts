@@ -2,6 +2,7 @@ import type { KetQuaPhanTrang } from '@/types/common'
 import type { DanhGia } from '@/types/danhGia'
 import type {
   AnhDaTaiLen,
+  AnhTrongThuMuc,
   DanhSachSanPhamQuanTri,
   LuuBienTheRequest,
   LuuSanPhamRequest,
@@ -50,6 +51,8 @@ export const adminSanPhamApi = {
 
   nhapLoHang: (ma: number, maBienThe: number, req: NhapLoHangRequest) =>
     api.post<SanPhamQuanTriChiTiet>(`/admin/san-pham/${ma}/bien-the/${maBienThe}/lo-hang`, req),
+
+  anhTrongThuMuc: (signal?: AbortSignal) => api.get<AnhTrongThuMuc[]>('/admin/anh-san-pham', signal),
 
   taiAnh: (tep: File) => {
     const form = new FormData()

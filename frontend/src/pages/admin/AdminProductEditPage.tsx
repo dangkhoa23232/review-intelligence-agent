@@ -5,6 +5,7 @@ import ProductImage from '@/components/product/ProductImage'
 import { adminSanPhamApi } from '@/services/api/sanPhamApi'
 import { traCuuApi } from '@/services/api/traCuuApi'
 import type {
+  AnhTrongThuMuc,
   BienTheQuanTri,
   LuuBienTheRequest,
   LuuSanPhamRequest,
@@ -67,7 +68,70 @@ function The({ tieuDe, moTa, children }: { tieuDe: string; moTa?: string; childr
 
 // ============================================================================ Ảnh
 
+/** Lưới ảnh có sẵn trong frontend/public/images/san-pham (GET /api/admin/anh-san-pham) – bấm để thêm. */
+function ChonAnhThuMuc({ daChon, onChon, onDong }: { daChon: string[]; onChon: (a: string) => void; onDong: () => void }) {
+  const [ds, setDs] = useState<AnhTrongThuMuc[] | null>(null)
+  const [loi, setLoi] = useState<string | null>(null)
+  const [loc, setLoc] = useState('')
+
+  useEffect(() => {
+    const ctrl = new AbortController()
+    adminSanPhamApi
+      .anhTrongThuMuc(ctrl.signal)
+      .then((x) => !ctrl.signal.aborted && setDs(x))
+      .catch((err) => !ctrl.signal.aborted && setLoi(thongBaoLoi(err)))
+    return () => ctrl.abort()
+  }, [])
+
+  const hienThi = (ds ?? []).filter((a) => a.tenTep.toLowerCase().includes(loc.trim().toLowerCase()))
+
+  return (
+    <div className="rounded-xl border border-gray-200 bg-gray-50 p-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <input
+          value={loc}
+          onChange={(e) => setLoc(e.target.value)}
+          placeholder="Lọc theo tên tệp…"
+          className={`${O_NHAP} max-w-xs bg-white`}
+        />
+        <span className="text-xs text-gray-500">
+          {ds ? `${hienThi.length}/${ds.length} ảnh trong /images/san-pham` : ''}
+        </span>
+        <button type="button" onClick={onDong} className="ml-auto rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm hover:bg-gray-100">
+          Đóng
+        </button>
+      </div>
+      {loi ? (
+        <p className="mt-3 text-sm text-red-600">{loi}</p>
+      ) : !ds ? (
+        <DangTai nhan="Đang tải danh sách ảnh…" />
+      ) : (
+        <ul className="mt-3 grid max-h-80 grid-cols-3 gap-2 overflow-y-auto sm:grid-cols-6">
+          {hienThi.map((a) => {
+            const co = daChon.includes(a.duongDan)
+            return (
+              <li key={a.tenTep}>
+                <button
+                  type="button"
+                  disabled={co}
+                  onClick={() => onChon(a.duongDan)}
+                  title={a.tenTep}
+                  className={`block w-full overflow-hidden rounded-lg border bg-white text-left ${co ? 'border-brand-500 opacity-50' : 'border-gray-200 hover:border-brand-400'}`}
+                >
+                  <ProductImage src={a.duongDan} alt={a.tenTep} className="aspect-square w-full p-1 text-base" />
+                  <span className="block truncate px-1 pb-1 text-[10px] text-gray-600">{co ? '✓ Đã chọn' : a.tenTep}</span>
+                </button>
+              </li>
+            )
+          })}
+        </ul>
+      )}
+    </div>
+  )
+}
+
 function QuanLyAnh({ anh, onChange }: { anh: string[]; onChange: (a: string[]) => void }) {
+  const [moThuMuc, setMoThuMuc] = useState(false)
   const [dangTai, setDangTai] = useState(false)
   const [loi, setLoi] = useState<string | null>(null)
   const [url, setUrl] = useState('')
@@ -176,8 +240,25 @@ function QuanLyAnh({ anh, onChange }: { anh: string[]; onChange: (a: string[]) =
         >
           {dangTai ? 'Đang tải ảnh…' : 'Tải ảnh lên'}
         </label>
+        <button
+          type="button"
+          onClick={() => setMoThuMuc((x) => !x)}
+          className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+        >
+          Chọn từ thư mục
+        </button>
         <span className="text-xs text-gray-500">.jpg / .png / .webp, tối đa 5 MB mỗi ảnh</span>
       </div>
+      {moThuMuc && (
+        <ChonAnhThuMuc
+          daChon={anh}
+          onDong={() => setMoThuMuc(false)}
+          onChon={(a) => {
+            if (anh.length >= 10) return setLoi('Tối đa 10 ảnh cho mỗi sản phẩm.')
+            onChange([...anh, a])
+          }}
+        />
+      )}
       <div className="flex gap-2">
         <input
           value={url}

@@ -205,3 +205,5 @@ public record SanPhamQuanTriChiTietDto(
     IReadOnlyList<BienTheQuanTriDto> BienThe);
 
 public record AnhDaTaiLenDto(string DuongDan, string TenTep, long KichThuoc);
+
+public record AnhTrongThuMucDto(string DuongDan, string TenTep, long KichThuoc, DateTime NgaySua);

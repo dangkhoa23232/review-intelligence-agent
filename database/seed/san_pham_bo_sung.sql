@@ -34,10 +34,20 @@ FROM dbo.SanPham sp
 JOIN (VALUES
     ('gel-rua-mat-bi-dao',       N'["/images/san-pham/gel-rua-mat-bi-dao-1.webp","/images/san-pham/gel-rua-mat-bi-dao-2.webp"]'),
     ('tinh-chat-niacinamide-10', N'["/images/san-pham/tinh-chat-niacinamide-10-1.webp"]'),
-    ('kem-duong-phuc-hoi-b5',    N'["/images/san-pham/kem-duong-phuc-hoi-b5-1.webp"]'),
+    ('kem-duong-phuc-hoi-b5',    N'["/images/san-pham/kem-duong-phuc-hoi-b5-anh-chup.webp"]'),
     ('kem-chong-nang-kiem-dau',  N'["/images/san-pham/kem-chong-nang-kiem-dau-1.webp"]')
 ) v(DuongDan, Anh) ON v.DuongDan = sp.DuongDan
 WHERE sp.DanhSachAnh IS NULL OR sp.DanhSachAnh LIKE N'%"/anh/%';
+
+/* ---------- Ảnh chụp thật (Open Beauty Facts, CC BY-SA 3.0 – xem frontend/public/images/san-pham/NGUON_ANH.md)
+   Nâng cấp CSDL đã seed bản trước: chỉ thay khi ảnh đại diện vẫn là ảnh minh họa "-1.webp". ---------- */
+UPDATE sp SET DanhSachAnh = v.Anh
+FROM dbo.SanPham sp
+JOIN (VALUES
+    ('kem-duong-phuc-hoi-b5',          N'["/images/san-pham/kem-duong-phuc-hoi-b5-anh-chup.webp"]'),
+    ('sua-rua-mat-senka-perfect-whip', N'["/images/san-pham/sua-rua-mat-senka-perfect-whip-anh-chup.webp","/images/san-pham/sua-rua-mat-senka-perfect-whip-2.webp"]')
+) v(DuongDan, Anh) ON v.DuongDan = sp.DuongDan
+WHERE JSON_VALUE(sp.DanhSachAnh, '$[0]') = N'/images/san-pham/' + v.DuongDan + N'-1.webp';
 
 /* ---------- Sản phẩm mới ---------- */
 DECLARE @sp TABLE (
@@ -51,7 +61,7 @@ INSERT @sp VALUES
  N'Làm sạch sâu, tạo bọt mịn, giữ ẩm cho da',
  N'Glycerin, axit stearic, axit myristic, kali hydroxit, chiết xuất tơ tằm trắng (Sericin), Hyaluronic Acid.',
  N'Lấy khoảng 1 cm sữa rửa mặt, thêm chút nước và đánh bọt (dùng lưới tạo bọt càng tốt). Massage nhẹ nhàng lên mặt ướt rồi rửa sạch. Dùng sáng và tối.',
- N'["/images/san-pham/sua-rua-mat-senka-perfect-whip-1.webp","/images/san-pham/sua-rua-mat-senka-perfect-whip-2.webp"]'),
+ N'["/images/san-pham/sua-rua-mat-senka-perfect-whip-anh-chup.webp","/images/san-pham/sua-rua-mat-senka-perfect-whip-2.webp"]'),
 
 ('sua-rua-mat-senka-perfect-whip-acne-care', 'sua-rua-mat', N'Senka',
  N'Sữa rửa mặt Senka Perfect Whip Acne Care cho da mụn',
