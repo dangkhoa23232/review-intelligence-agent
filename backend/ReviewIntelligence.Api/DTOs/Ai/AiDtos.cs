@@ -91,7 +91,32 @@ public record ChiSoKhiaCanhDto(double DoChuanXac, double DoPhu, double DiemF1, d
 
 public record ChiSoMoHinhDto(
     string MoHinh, int SoMau, double DoChinhXac, double DoChuanXacMacro, double DoPhuMacro, double DiemF1Macro,
-    double? DoTreTrungBinhMs, ChiSoKhiaCanhDto KhiaCanh, DateTime? NgayChayGanNhat);
+    double? DoTreTrungBinhMs, ChiSoKhiaCanhDto KhiaCanh, DateTime? NgayChayGanNhat)
+{
+    /// <summary>true khi đã chạy đủ toàn bộ mẫu KiemThu – chỉ khi đó số liệu mới dùng để so sánh.</summary>
+    public bool DuMau { get; init; }
+    public double? DoTreTrungViMs { get; init; }
+    public double? DoTreP95Ms { get; init; }
+    public IReadOnlyList<ChiSoLopDto> TheoLop { get; init; } = [];
+
+    /// <summary>Ô ma trận nhầm lẫn (nhãn chuẩn × nhãn dự đoán), đủ 9 ô.</summary>
+    public IReadOnlyList<ONhamLanDto> MaTranNhamLan { get; init; } = [];
+
+    /// <summary>Nhóm lỗi (gộp từ KetQuaThucNghiem.NhomLoi) – nhiều nhất trước.</summary>
+    public IReadOnlyList<NhomLoiDto> NhomLoi { get; init; } = [];
+}
+
+public record ChiSoLopDto(string Nhan, double DoChuanXac, double DoPhu, double DiemF1, int SoMauChuan);
+
+public record ONhamLanDto(string Chuan, string DuDoan, int SoMau);
+
+public record ChiTietNhomLoiDto(string NhomLoi, int SoMau);
+
+public record ViDuLoiDto(int MaMau, string NoiDung, string CamXucChuan, string CamXucDuDoan);
+
+public record NhomLoiDto(
+    string NhomChinh, int SoMau, double TiLeTrenMauSai,
+    IReadOnlyList<ChiTietNhomLoiDto> ChiTiet, IReadOnlyList<ViDuLoiDto> ViDu);
 
 public record ThongTinBoMauDto(int SoKiemThu, int SoViDuMau, IReadOnlyDictionary<string, int> PhanBoNhan);
 

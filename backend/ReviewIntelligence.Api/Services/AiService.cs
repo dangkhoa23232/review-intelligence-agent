@@ -180,22 +180,86 @@ public class AiService(AppDbContext db, IAiServiceClient ai) : IAiService
         // Dữ liệu khía cạnh cho chỉ số bổ sung (chỉ tập KiemThu, giống view).
         var dong = await db.KetQuaThucNghiem.AsNoTracking()
             .Where(k => k.MauKiemThu.TapDuLieu == TapDuLieu.KiemThu)
-            .Select(k => new { k.MoHinh, k.KhiaCanhDuDoan, k.MauKiemThu.KhiaCanhChuan, k.NgayChay })
+            .Select(k => new
+            {
+                k.MaMau, k.MoHinh, k.KhiaCanhDuDoan, k.MauKiemThu.KhiaCanhChuan, k.NgayChay,
+                k.MauKiemThu.NoiDung, k.MauKiemThu.CamXucChuan, k.CamXucDuDoan, k.LaDung, k.NhomLoi, k.DoTreMs
+            })
             .ToListAsync(ct);
+
+        string[] nhan = [CamXuc.TichCuc, CamXuc.TrungTinh, CamXuc.TieuCuc];
 
         var moHinh = view
             .OrderBy(v => Array.IndexOf(MoHinhAbsa.TatCa, v.MoHinh))
             .Select(v =>
             {
-                var cuaMoHinh = dong.Where(d => d.MoHinh == v.MoHinh).ToList();
+                var cuaMoHinh = dong.Where(d => d.MoHinh == v.MoHinh).OrderBy(d => d.MaMau).ToList();
+
+                // Chỉ số theo nhãn (cùng công thức với vw_ChiSoThucNghiem) + ma trận nhầm lẫn.
+                var theoLop = nhan.Select(n =>
+                {
+                    int tp = cuaMoHinh.Count(d => d.CamXucDuDoan == n && d.CamXucChuan == n);
+                    int fp = cuaMoHinh.Count(d => d.CamXucDuDoan == n && d.CamXucChuan != n);
+                    int fn = cuaMoHinh.Count(d => d.CamXucDuDoan != n && d.CamXucChuan == n);
+                    double p = tp + fp == 0 ? 0 : (double)tp / (tp + fp);
+                    double r = tp + fn == 0 ? 0 : (double)tp / (tp + fn);
+                    return new ChiSoLopDto(n, p, r, p + r == 0 ? 0 : 2 * p * r / (p + r), tp + fn);
+                }).ToList();
+                var maTran = (from c in nhan from p in nhan
+                              select new ONhamLanDto(c, p, cuaMoHinh.Count(d => d.CamXucChuan == c && d.CamXucDuDoan == p))).ToList();
+
+                var sai = cuaMoHinh.Where(d => !d.LaDung).ToList();
+                var nhomLoi = sai
+                    .GroupBy(d => NhomLoiChinh(d.NhomLoi))
+                    .OrderByDescending(g => g.Count()).ThenBy(g => g.Key)
+                    .Select(g => new NhomLoiDto(
+                        g.Key, g.Count(), (double)g.Count() / sai.Count,
+                        g.GroupBy(d => d.NhomLoi ?? "Không phân loại").OrderByDescending(x => x.Count())
+                            .Select(x => new ChiTietNhomLoiDto(x.Key, x.Count())).ToList(),
+                        g.Take(3).Select(d => new ViDuLoiDto(d.MaMau, d.NoiDung, d.CamXucChuan, d.CamXucDuDoan)).ToList()))
+                    .ToList();
+
+                var tre = cuaMoHinh.Where(d => d.DoTreMs is not null).Select(d => (double)d.DoTreMs!.Value).Order().ToList();
+
                 return new ChiSoMoHinhDto(
                     v.MoHinh, v.SoMau, v.DoChinhXac, v.DoChuanXacMacro, v.DoPhuMacro, v.DiemF1Macro, v.DoTreTrungBinhMs,
                     TinhChiSoKhiaCanh(cuaMoHinh.Select(d => (DocTuDien(d.KhiaCanhChuan), DocTuDien(d.KhiaCanhDuDoan)))),
-                    cuaMoHinh.Count > 0 ? cuaMoHinh.Max(d => d.NgayChay) : null);
+                    cuaMoHinh.Count > 0 ? cuaMoHinh.Max(d => d.NgayChay) : null)
+                {
+                    DuMau = thongTinBoMau.SoKiemThu > 0 && v.SoMau >= thongTinBoMau.SoKiemThu,
+                    DoTreTrungViMs = PhanVi(tre, 0.5),
+                    DoTreP95Ms = PhanVi(tre, 0.95),
+                    TheoLop = theoLop,
+                    MaTranNhamLan = maTran,
+                    NhomLoi = nhomLoi
+                };
             })
             .ToList();
 
         return new ChiSoThucNghiemDto(thongTinBoMau, moHinh);
+    }
+
+    /// <summary>Phân vị theo nội suy tuyến tính trên danh sách đã sắp xếp.</summary>
+    private static double? PhanVi(IReadOnlyList<double> daSapXep, double q)
+    {
+        if (daSapXep.Count == 0) return null;
+        var viTri = q * (daSapXep.Count - 1);
+        int duoi = (int)Math.Floor(viTri), tren = (int)Math.Ceiling(viTri);
+        return daSapXep[duoi] + (daSapXep[tren] - daSapXep[duoi]) * (viTri - duoi);
+    }
+
+    /// <summary>
+    /// Gộp NhomLoi chi tiết (ai-service ghi kèm hướng nhầm, vd. "Không nhận ra trung tính – đoán TichCuc")
+    /// thành nhóm chính để thống kê. Khớp hàm nhom_chinh trong ai-service/scripts/thuc_nghiem.py.
+    /// </summary>
+    private static string NhomLoiChinh(string? nhomLoi)
+    {
+        if (string.IsNullOrWhiteSpace(nhomLoi)) return "Không phân loại";
+        var tach = nhomLoi.IndexOf(" – ", StringComparison.Ordinal);
+        if (tach > 0) return nhomLoi[..tach];
+        if (nhomLoi.StartsWith("Đoán trung tính", StringComparison.Ordinal)) return "Đoán trung tính cho câu có cảm xúc";
+        if (nhomLoi.StartsWith("Đảo cực", StringComparison.Ordinal)) return "Đảo cực cảm xúc (Tích cực ↔ Tiêu cực)";
+        return nhomLoi;
     }
 
     /// <summary>Micro precision / recall / F1 cho việc phát hiện khía cạnh + độ chính xác cảm xúc trên các khía cạnh phát hiện đúng.</summary>

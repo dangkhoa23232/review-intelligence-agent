@@ -89,6 +89,19 @@ export interface ChiSoMoHinh {
   doTreTrungBinhMs: number | null
   khiaCanh: { doChuanXac: number; doPhu: number; diemF1: number; doChinhXacCamXuc: number; soCapChuan: number }
   ngayChayGanNhat: string | null
+  /** Đã chạy đủ toàn bộ mẫu KiemThu – chỉ khi đó số liệu mới dùng để so sánh. */
+  duMau: boolean
+  doTreTrungViMs: number | null
+  doTreP95Ms: number | null
+  theoLop: { nhan: CamXuc; doChuanXac: number; doPhu: number; diemF1: number; soMauChuan: number }[]
+  maTranNhamLan: { chuan: CamXuc; duDoan: CamXuc; soMau: number }[]
+  nhomLoi: {
+    nhomChinh: string
+    soMau: number
+    tiLeTrenMauSai: number
+    chiTiet: { nhomLoi: string; soMau: number }[]
+    viDu: { maMau: number; noiDung: string; camXucChuan: CamXuc; camXucDuDoan: CamXuc }[]
+  }[]
 }
 
 export interface ChiSoThucNghiem {

@@ -3,6 +3,7 @@ import Pagination from '@/components/common/Pagination'
 import { DangTai, HopLoi } from '@/components/common/TrangThaiTai'
 import { adminAiApi } from '@/services/api/aiApi'
 import type { ChiSoMoHinh, MoHinhAbsa, TrangThaiAi, TrangThaiThucNghiem } from '@/types/ai'
+import type { CamXuc } from '@/types/danhGia'
 import { NHAN_CAM_XUC, dinhDangNgayGio } from '@/utils/format'
 import { thongBaoLoi, useAsync } from '@/utils/useAsync'
 
@@ -43,11 +44,28 @@ function BangChiSo({ moHinh, soKiemThu }: { moHinh: ChiSoMoHinh[]; soKiemThu: nu
             <th className="py-2 font-medium">F1 khía cạnh</th>
             <th className="py-2 font-medium">Đúng cảm xúc KC</th>
             <th className="py-2 font-medium">Độ trễ TB</th>
+            <th className="py-2 font-medium">Trung vị / P95</th>
           </tr>
         </thead>
         <tbody>
           {moHinh.map((m) => {
-            const thieu = m.soMau < soKiemThu
+            const thieu = !m.duMau || m.soMau < soKiemThu
+            if (thieu)
+              return (
+                <tr key={m.moHinh} className="border-b border-gray-100 last:border-0">
+                  <td className="py-3 text-left">
+                    <p className="font-medium text-gray-900">{MO_HINH.find((x) => x.ma === m.moHinh)?.nhan ?? m.moHinh}</p>
+                    <p className="text-xs text-gray-400">{m.moHinh}</p>
+                  </td>
+                  <td className="py-3 text-right tabular-nums">
+                    {m.soMau}/{soKiemThu}
+                  </td>
+                  <td colSpan={8} className="py-3 pl-4 text-left text-xs text-amber-700">
+                    ⚠ Chưa chạy đủ bộ kiểm thử (dữ liệu minh họa hoặc lượt chạy dở) – ẩn số liệu để tránh so sánh sai. Chạy
+                    lại cấu hình này bên dưới.
+                  </td>
+                </tr>
+              )
             return (
               <tr key={m.moHinh} className="border-b border-gray-100 text-right last:border-0">
                 <td className="py-3 text-left">
@@ -56,11 +74,6 @@ function BangChiSo({ moHinh, soKiemThu }: { moHinh: ChiSoMoHinh[]; soKiemThu: nu
                     {m.moHinh}
                     {m.ngayChayGanNhat && ` · ${dinhDangNgayGio(m.ngayChayGanNhat)}`}
                   </p>
-                  {thieu && (
-                    <p className="mt-1 text-xs text-amber-700">
-                      ⚠ Chỉ {m.soMau}/{soKiemThu} mẫu – chưa chạy đủ bộ kiểm thử, không dùng để so sánh.
-                    </p>
-                  )}
                 </td>
                 <td className="py-3 tabular-nums">{m.soMau}</td>
                 <td className="py-3"><OThanh giaTri={m.doChinhXac} /></td>
@@ -70,6 +83,9 @@ function BangChiSo({ moHinh, soKiemThu }: { moHinh: ChiSoMoHinh[]; soKiemThu: nu
                 <td className="py-3"><OThanh giaTri={m.khiaCanh.diemF1} /></td>
                 <td className="py-3 tabular-nums">{pt(m.khiaCanh.doChinhXacCamXuc)}</td>
                 <td className="py-3 tabular-nums">{m.doTreTrungBinhMs !== null ? `${Math.round(m.doTreTrungBinhMs)} ms` : '–'}</td>
+                <td className="py-3 tabular-nums text-gray-600">
+                  {m.doTreTrungViMs !== null ? `${Math.round(m.doTreTrungViMs)} / ${Math.round(m.doTreP95Ms ?? 0)} ms` : '–'}
+                </td>
               </tr>
             )
           })}
@@ -81,6 +97,164 @@ function BangChiSo({ moHinh, soKiemThu }: { moHinh: ChiSoMoHinh[]; soKiemThu: nu
         KhiaCanhDuDoan.
       </p>
     </div>
+  )
+}
+
+const NHAN_THU_TU: CamXuc[] = ['TichCuc', 'TrungTinh', 'TieuCuc']
+
+/** Ma trận nhầm lẫn: ô có nhãn số, nền một màu đậm dần theo tỉ lệ trên hàng (nhãn chuẩn). */
+function MaTranNhamLan({ m }: { m: ChiSoMoHinh }) {
+  const o = (c: CamXuc, p: CamXuc) => m.maTranNhamLan.find((x) => x.chuan === c && x.duDoan === p)?.soMau ?? 0
+  return (
+    <table className="text-sm">
+      <caption className="mb-2 text-left text-xs text-gray-500">Hàng = nhãn chuẩn · Cột = dự đoán</caption>
+      <thead>
+        <tr className="text-xs text-gray-500">
+          <th />
+          {NHAN_THU_TU.map((p) => (
+            <th key={p} className="px-2 pb-1 font-medium">
+              {NHAN_CAM_XUC[p]}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {NHAN_THU_TU.map((c) => {
+          const tong = NHAN_THU_TU.reduce((s, p) => s + o(c, p), 0)
+          return (
+            <tr key={c}>
+              <th className="pr-3 text-right text-xs font-medium text-gray-500">{NHAN_CAM_XUC[c]}</th>
+              {NHAN_THU_TU.map((p) => {
+                const n = o(c, p)
+                const tiLe = tong ? n / tong : 0
+                return (
+                  <td key={p} className="p-0.5">
+                    <div
+                      title={`Chuẩn ${NHAN_CAM_XUC[c]} → dự đoán ${NHAN_CAM_XUC[p]}: ${n}/${tong} mẫu`}
+                      className={`flex h-12 w-20 items-center justify-center rounded-md tabular-nums ${
+                        c === p ? 'font-semibold' : ''
+                      } ${tiLe > 0.55 ? 'text-white' : 'text-gray-900'}`}
+                      style={{ background: n === 0 ? '#f3f4f6' : `rgba(42, 120, 214, ${0.15 + tiLe * 0.85})` }}
+                    >
+                      {n}
+                    </div>
+                  </td>
+                )
+              })}
+            </tr>
+          )
+        })}
+      </tbody>
+    </table>
+  )
+}
+
+/** Chi tiết một cấu hình: chỉ số theo nhãn, ma trận nhầm lẫn, nhóm lỗi phổ biến. */
+function PhanTichMoHinh({ m }: { m: ChiSoMoHinh }) {
+  const soSai = m.nhomLoi.reduce((s, x) => s + x.soMau, 0)
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-6 lg:grid-cols-[1fr_auto]">
+        <div className="overflow-x-auto">
+          <h3 className="mb-2 text-sm font-semibold text-gray-900">Chỉ số theo nhãn</h3>
+          <table className="w-full min-w-[420px] text-sm">
+            <thead>
+              <tr className="border-b border-gray-200 text-right text-xs text-gray-500">
+                <th className="py-2 text-left font-medium">Nhãn</th>
+                <th className="py-2 font-medium">Precision</th>
+                <th className="py-2 font-medium">Recall</th>
+                <th className="py-2 font-medium">F1</th>
+                <th className="py-2 font-medium">Số mẫu chuẩn</th>
+              </tr>
+            </thead>
+            <tbody>
+              {m.theoLop.map((l) => (
+                <tr key={l.nhan} className="border-b border-gray-100 text-right last:border-0">
+                  <td className="py-2 text-left">{NHAN_CAM_XUC[l.nhan]}</td>
+                  <td className="py-2 tabular-nums">{pt(l.doChuanXac)}</td>
+                  <td className="py-2 tabular-nums">{pt(l.doPhu)}</td>
+                  <td className="py-2"><OThanh giaTri={l.diemF1} /></td>
+                  <td className="py-2 tabular-nums">{l.soMauChuan}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <h3 className="mb-2 text-sm font-semibold text-gray-900">Ma trận nhầm lẫn</h3>
+          <MaTranNhamLan m={m} />
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-sm font-semibold text-gray-900">
+          Nhóm lỗi phổ biến – {soSai}/{m.soMau} mẫu sai
+        </h3>
+        {m.nhomLoi.length === 0 ? (
+          <p className="mt-2 text-sm text-gray-500">Không có mẫu sai.</p>
+        ) : (
+          <ul className="mt-3 space-y-3">
+            {m.nhomLoi.map((g) => (
+              <li key={g.nhomChinh} className="rounded-xl border border-gray-100 p-3">
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                  <p className="font-medium text-gray-900">{g.nhomChinh}</p>
+                  <p className="text-sm tabular-nums text-gray-600">
+                    {g.soMau} mẫu · {pt(g.tiLeTrenMauSai)} số mẫu sai
+                  </p>
+                </div>
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-gray-100" aria-hidden>
+                  <div className="h-full rounded-full" style={{ width: `${g.tiLeTrenMauSai * 100}%`, background: '#2a78d6' }} />
+                </div>
+                <p className="mt-2 text-xs text-gray-500">{g.chiTiet.map((c) => `${c.nhomLoi} (${c.soMau})`).join(' · ')}</p>
+                <ul className="mt-2 space-y-1 text-xs text-gray-700">
+                  {g.viDu.map((v) => (
+                    <li key={v.maMau}>
+                      <span className="text-gray-400">#{v.maMau}</span> “{v.noiDung}” →{' '}
+                      <span className="text-red-600">
+                        {NHAN_CAM_XUC[v.camXucChuan]} → {NHAN_CAM_XUC[v.camXucDuDoan]}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function KhuPhanTich({ moHinh }: { moHinh: ChiSoMoHinh[] }) {
+  const du = moHinh.filter((m) => m.duMau)
+  const [chon, setChon] = useState<MoHinhAbsa | null>(null)
+  const m = du.find((x) => x.moHinh === chon) ?? du[0]
+  if (!m) return null
+  return (
+    <section className="rounded-2xl border border-gray-100 bg-white p-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="font-semibold text-gray-900">Phân tích chi tiết & lỗi</h2>
+        <div className="flex gap-1" role="tablist">
+          {du.map((x) => (
+            <button
+              key={x.moHinh}
+              type="button"
+              role="tab"
+              aria-selected={x.moHinh === m.moHinh}
+              onClick={() => setChon(x.moHinh)}
+              className={`rounded-full px-3 py-1 text-sm ${
+                x.moHinh === m.moHinh ? 'bg-gray-900 text-white' : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              {MO_HINH.find((y) => y.ma === x.moHinh)?.nhan ?? x.moHinh}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="mt-4">
+        <PhanTichMoHinh m={m} />
+      </div>
+    </section>
   )
 }
 
@@ -358,6 +532,8 @@ export default function AdminExperimentPage() {
           duLieu && <BangChiSo moHinh={duLieu.moHinh} soKiemThu={duLieu.boMau.soKiemThu} />
         )}
       </section>
+
+      {duLieu && <KhuPhanTich moHinh={duLieu.moHinh} />}
 
       <DieuKhienChay onXong={taiLaiTatCa} />
       <KetQuaTungMau key={lan} />

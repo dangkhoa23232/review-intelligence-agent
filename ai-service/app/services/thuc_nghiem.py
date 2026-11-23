@@ -80,17 +80,38 @@ def nhom_loi(noi_dung: str, chuan: str, du_doan: str) -> str:
 
 # ------------------------------------------------------------------ chạy
 
+LOI_LIEN_TIEP_DE_DUNG = 3
+
+
 def _chay_mot_mo_hinh(mo_hinh: str, mau: list[dict], khia_canh) -> None:
     bo = lay_bo_phan_tich(mo_hinh)
+    thanh_cong = loi_lien_tiep = 0
+    # Mô hình cục bộ: chạy khởi động 1 lần (không tính giờ) để độ trễ không bị lần gọi đầu (nạp CUDA kernel) làm lệch.
+    # LLM không khởi động để tránh tốn thêm lượt gọi API – độ trễ LLM chủ yếu là mạng + sinh token.
+    if mo_hinh == "PhoBERT" and mau:
+        try:
+            bo.phan_tich(mau[0]["NoiDung"], khia_canh)
+        except Exception:  # noqa: BLE001 – lỗi sẽ được ghi nhận trong vòng lặp chính
+            pass
     for i, m in enumerate(mau, 1):
         t0 = time.perf_counter()
         try:
             kq = bo.phan_tich(m["NoiDung"], khia_canh)
         except Exception as e:  # noqa: BLE001 – một mẫu lỗi không dừng cả lượt chạy
             logger.warning("%s lỗi ở MauKiemThu#%s: %s", mo_hinh, m["MaMau"], e)
+            loi_lien_tiep += 1
             with _khoa:
                 _trang_thai["loi"][mo_hinh] = f"Mẫu #{m['MaMau']}: {e}"[:300]
+            # Lỗi ngay từ đầu (khóa API sai, hết hạn mức, mất mạng…) → dừng cấu hình này, tránh gọi API vô ích.
+            if thanh_cong == 0 and loi_lien_tiep >= LOI_LIEN_TIEP_DE_DUNG:
+                with _khoa:
+                    _trang_thai["bo_qua"][mo_hinh] = (
+                        f"Dừng sau {loi_lien_tiep} mẫu đầu lỗi liên tiếp: {e}"[:300])
+                logger.error("Dừng %s: %d mẫu đầu đều lỗi.", mo_hinh, loi_lien_tiep)
+                return
             continue
+        thanh_cong += 1
+        loi_lien_tiep = 0
         ms = int((time.perf_counter() - t0) * 1000)
         dung = kq.cam_xuc == m["CamXucChuan"]
         khia_canh_du_doan = json.dumps({k.ten: k.cam_xuc for k in kq.khia_canh}, ensure_ascii=False)

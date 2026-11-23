@@ -60,6 +60,17 @@ mô hình thực sự đã chạy.
 | POST | `/thuc-nghiem/chay` | `{"mo_hinh":[...]}` – 202, chạy nền |
 | GET | `/thuc-nghiem/trang-thai` | tiến độ lượt chạy |
 
+## Thực nghiệm từ dòng lệnh
+
+```powershell
+$env:PYTHONUTF8 = "1"
+.venv\Scripts\python -m scripts.thuc_nghiem kiem-tra [--goi-thu]
+.venv\Scripts\python -m scripts.thuc_nghiem chay PhoBERT LLM_KhongVD LLM_ItVD
+.venv\Scripts\python -m scripts.thuc_nghiem bao-cao --ra ..\docs\thuc-nghiem\ket-qua.md
+```
+
+Không mở Qdrant nên chạy được khi ai-service đang chạy. Chi tiết và kết quả: `docs/thuc-nghiem/README.md`.
+
 ## Bộ mẫu kiểm thử
 
 `data/mau_kiem_thu.json` là dữ liệu **tổng hợp** (tự soạn, gán nhãn thủ công): 45 mẫu `KiemThu` (15 mỗi nhãn) phủ
