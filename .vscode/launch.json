@@ -1,23 +1,21 @@
 {
-  // Cấu hình DEBUG (F5). Để chỉ chạy dịch vụ không cần debug, dùng task "Chạy tất cả dịch vụ" trong tasks.json.
-  // Cần extension: Python Debugger (ms-python.debugpy), C# (ms-dotnettools.csharp) – xem extensions.json.
-  // ⚠ ai-service: chỉ 1 tiến trình cùng lúc (Qdrant nhúng khóa ai-service/qdrant_local) – không vừa chạy task
-  //   "AI Service (8000)" vừa debug "AI Service (debug)".
+  // Cấu hình DEBUG (F5). Để chỉ CHẠY dịch vụ (không debug), dùng task "Chạy tất cả dịch vụ" (Ctrl+Shift+B).
+  //
+  // ai-service (Python) KHÔNG có cấu hình debug ở đây vì máy chưa cài extension Python Debugger
+  // (VS Code sẽ báo "Configured debug type 'debugpy' is not supported"). Chạy ai-service bằng task
+  // "AI Service (8000)". Muốn debug Python: cài extension ms-python.python + ms-python.debugpy rồi thêm:
+  //   {
+  //     "name": "AI Service (debug)", "type": "debugpy", "request": "launch",
+  //     "python": "${workspaceFolder}/ai-service/.venv/Scripts/python.exe",
+  //     "module": "uvicorn", "args": ["app.main:app", "--host", "127.0.0.1", "--port", "8000"],
+  //     "cwd": "${workspaceFolder}/ai-service", "env": { "PYTHONUTF8": "1" },
+  //     "preLaunchTask": "Kiểm tra: ai-service chưa chạy"
+  //   }
+  // ⚠ Chỉ 1 tiến trình ai-service cùng lúc (Qdrant nhúng khóa ai-service/qdrant_local) – không vừa chạy task vừa debug.
+  //
+  // Backend dùng type "coreclr" (extension C# – đã cài), Chrome dùng trình debug JavaScript có sẵn của VS Code.
   "version": "0.2.0",
   "configurations": [
-    {
-      "name": "AI Service (debug)",
-      "type": "debugpy",
-      "request": "launch",
-      "python": "${workspaceFolder}/ai-service/.venv/Scripts/python.exe",
-      "module": "uvicorn",
-      "args": ["app.main:app", "--host", "127.0.0.1", "--port", "8000"],
-      "cwd": "${workspaceFolder}/ai-service",
-      "env": { "PYTHONUTF8": "1", "PYTHONIOENCODING": "utf-8" },
-      "preLaunchTask": "Kiểm tra: ai-service chưa chạy",
-      "justMyCode": true,
-      "console": "integratedTerminal"
-    },
     {
       "name": "Backend API (debug)",
       "type": "coreclr",
@@ -43,8 +41,9 @@
   ],
   "compounds": [
     {
-      "name": "Debug toàn bộ (AI + Backend + Chrome)",
-      "configurations": ["AI Service (debug)", "Backend API (debug)", "Frontend (Chrome)"],
+      // ai-service: chạy riêng bằng task "AI Service (8000)" trước (nếu cần AI).
+      "name": "Debug Backend + Chrome",
+      "configurations": ["Backend API (debug)", "Frontend (Chrome)"],
       "stopAll": true
     }
   ]

@@ -21,10 +21,10 @@ Website mỹ phẩm tích hợp AI Agent phân tích cảm xúc theo khía cạn
 | **Chạy Backend + Frontend (không AI)** | Khi không cần ai-service |
 
 Tắt từng dịch vụ: **Tasks: Terminate Task** (chọn task hoặc *All Running Tasks*), hoặc nút thùng rác ở terminal.
-Debug (F5): chọn cấu hình trong `.vscode/launch.json` – *AI Service (debug)*, *Backend API (debug)*, *Frontend (Chrome)* hoặc *Debug toàn bộ*.
+Debug (F5): chọn *Backend API (debug)*, *Frontend (Chrome)* hoặc *Debug Backend + Chrome* trong `.vscode/launch.json`. ai-service chạy bằng task (chưa có cấu hình debug Python vì cần cài extension `ms-python.debugpy` – cách thêm ghi trong `launch.json`).
 
 > ⚠ **ai-service chỉ được chạy 1 tiến trình cùng lúc** – Qdrant nhúng khóa thư mục `ai-service/qdrant_local/`.
-> Không vừa chạy task *AI Service (8000)* vừa debug *AI Service (debug)*, và không mở thêm uvicorn ở terminal khác.
+> Không mở thêm uvicorn ở terminal khác khi task *AI Service (8000)* đang chạy.
 
 Yêu cầu trước: đã tạo `ai-service/.venv` và `ai-service/.env` (xem `ai-service/README.md`),
 `backend/ReviewIntelligence.Api/appsettings.Development.json` (mẫu: `appsettings.Development.example.json`),

@@ -28,8 +28,9 @@
         "owner": "ai-service",
         "pattern": { "regexp": "^__khong_bao_gio_khop__$" },
         "background": {
-          "activesBegin": "Started server process|Waiting for application startup",
-          "endsPattern": "Application startup complete|Uvicorn running on"
+          "activeOnStart": true,
+          "beginsPattern": "Started server process|Waiting for application startup",
+          "endsPattern": "Application startup complete|Uvicorn running on|Application startup failed|ERROR:"
         }
       }
     },
@@ -68,8 +69,9 @@
         "owner": "backend",
         "pattern": { "regexp": "^__khong_bao_gio_khop__$" },
         "background": {
-          "activesBegin": "Building|Đang dựng|dotnet run",
-          "endsPattern": "Now listening on|Application started|error"
+          "activeOnStart": true,
+          "beginsPattern": "Building|Đang dựng|dotnet run",
+          "endsPattern": "Now listening on|Application started|error CS|error MSB|Unhandled exception"
         }
       }
     },
@@ -103,7 +105,8 @@
         "owner": "vite",
         "pattern": { "regexp": "^__khong_bao_gio_khop__$" },
         "background": {
-          "activesBegin": "vite|VITE",
+          "activeOnStart": true,
+          "beginsPattern": "vite|VITE",
           "endsPattern": "Local:|ready in"
         }
       }
